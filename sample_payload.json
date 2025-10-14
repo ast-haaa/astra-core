@@ -1,0 +1,20 @@
+{
+  "deviceId": "ASTRA-IOT-01",
+  "eventUuid": "e7b2a9f2-1234-4a6b-9f2a-abcdef012345",
+  "batchId": "BATCH-20251007-001",
+  "role": "Farmer",
+  "timestamp": "2025-10-07T14:23:00Z",
+  "gpsLat": 26.9124,
+  "gpsLng": 75.7873,
+  "temp": 28.5,
+  "humidity": 63.0,
+  "tamper": false,
+  "battery": 93,
+  "sensorRaw": {
+    "sensorId": "DEV-001",
+    "readings": {
+      "dht_temp": 28.5,
+      "dht_hum": 63
+    }
+  }
+}

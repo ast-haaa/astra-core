@@ -1,0 +1,67 @@
+{
+  "info": {
+    "name": "Astra Backend - Sample",
+    "_postman_id": "astra-sample-collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Batch",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"batchId\": \"BATCH-20251007-001\",\n  \"herbName\": \"Ashwagandha\",\n  \"farmerId\": 1,\n  \"harvestDate\": \"2025-10-07\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/batch",
+          "host": [
+            "http://localhost:8080"
+          ],
+          "path": [
+            "api",
+            "batch"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Ingest Event",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-API-Key",
+            "value": "<replace-with-device-api-key>"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"deviceId\": \"ASTRA-IOT-01\",\n  \"eventUuid\": \"e7b2a9f2-1234-4a6b-9f2a-abcdef012345\",\n  \"batchId\": \"BATCH-20251007-001\",\n  \"role\": \"Farmer\",\n  \"timestamp\": \"2025-10-07T14:23:00Z\",\n  \"gpsLat\": 26.9124,\n  \"gpsLng\": 75.7873,\n  \"temp\": 28.5,\n  \"humidity\": 63.0,\n  \"tamper\": false,\n  \"battery\": 93,\n  \"sensorRaw\": {\n    \"sensorId\": \"DEV-001\",\n    \"readings\": {\n      \"dht_temp\": 28.5,\n      \"dht_hum\": 63\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/batch/BATCH-20251007-001/event",
+          "host": [
+            "http://localhost:8080"
+          ],
+          "path": [
+            "api",
+            "batch",
+            "BATCH-20251007-001",
+            "event"
+          ]
+        }
+      }
+    }
+  ]
+}

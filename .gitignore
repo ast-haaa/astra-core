@@ -1,0 +1,34 @@
+@'
+# Build outputs
+target/
+build/
+out/
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS + logs
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+
+# Maven/Gradle
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+.mvn/wrapper/
+.gradle/
+**/bin/
+
+# Java
+*.class
+
+# Node (if you have a frontend folder)
+node_modules/
+dist/
+'@ | Set-Content -Encoding UTF8 .gitignore
