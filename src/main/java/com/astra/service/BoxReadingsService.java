@@ -54,7 +54,6 @@ public class BoxReadingsService {
 
         dto.setTemperature(reading.getTemperatureC());
         dto.setHumidity(reading.getHumidityPercent());
-        dto.setVoc(reading.getVocPpm());
 
         dto.setLatitude(reading.getGpsLat());
         dto.setLongitude(reading.getGpsLon());
@@ -70,6 +69,10 @@ public class BoxReadingsService {
 
         long openAlertCount = alertRepository.countByBoxId(reading.getBoxId());
         dto.setHasOpenAlerts(openAlertCount > 0);
+
+        // Peltier state
+        String peltier = locationService.getLatestPeltierState(reading.getBoxId());
+        dto.setPeltierState(peltier);
 
         return dto;
     }

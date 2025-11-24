@@ -27,9 +27,6 @@ public class SensorReading {
     @Column(name = "humidity_percent")
     private Double humidityPercent;
 
-    @Column(name = "voc_ppm")
-    private Double vocPpm;
-
     @Column(name = "weight_kg")
     private Double weightKg;
 
@@ -86,14 +83,6 @@ public class SensorReading {
 
     public void setHumidityPercent(Double humidityPercent) {
         this.humidityPercent = humidityPercent;
-    }
-
-    public Double getVocPpm() {
-        return vocPpm;
-    }
-
-    public void setVocPpm(Double vocPpm) {
-        this.vocPpm = vocPpm;
     }
 
     public Double getWeightKg() {

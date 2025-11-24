@@ -9,7 +9,6 @@ public class BoxLatestReadingDto {
 
     private Double temperature;
     private Double humidity;
-    private Double voc;
 
     private Double latitude;
     private Double longitude;
@@ -18,6 +17,8 @@ public class BoxLatestReadingDto {
 
     private Instant lastUpdatedAt;
     private boolean hasOpenAlerts;
+
+    private String peltierState;
 
     public String getBoxId() {
         return boxId;
@@ -49,14 +50,6 @@ public class BoxLatestReadingDto {
 
     public void setHumidity(Double humidity) {
         this.humidity = humidity;
-    }
-
-    public Double getVoc() {
-        return voc;
-    }
-
-    public void setVoc(Double voc) {
-        this.voc = voc;
     }
 
     public Double getLatitude() {
@@ -97,5 +90,13 @@ public class BoxLatestReadingDto {
 
     public void setHasOpenAlerts(boolean hasOpenAlerts) {
         this.hasOpenAlerts = hasOpenAlerts;
+    }
+
+    public String getPeltierState() {
+        return peltierState;
+    }
+
+    public void setPeltierState(String peltierState) {
+        this.peltierState = peltierState;
     }
 }

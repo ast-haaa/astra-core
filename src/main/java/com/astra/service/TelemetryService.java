@@ -76,7 +76,6 @@ public class TelemetryService {
 
         reading.setTemperatureC(dto.getTemperatureC());
         reading.setHumidityPercent(dto.getHumidityPercent());
-        reading.setVocPpm(dto.getVocPpm());
         reading.setWeightKg(dto.getWeightKg());
         reading.setGpsLat(dto.getGpsLat());
         reading.setGpsLon(dto.getGpsLon());
@@ -116,14 +115,7 @@ public class TelemetryService {
             }
         }
 
-        if (reading.getVocPpm() != null) {
-            double voc = reading.getVocPpm();
-            double high = 500.0;
-            if (voc > high) {
-                alerts.add(buildAlert(batch, reading, "VOC", voc, null, high,
-                        "VOC level high: " + voc + " ppm"));
-            }
-        }
+        
 
         if (reading.getTamperFlag() != null && reading.getTamperFlag()) {
     Alert alert = new Alert();

@@ -1,5 +1,7 @@
 package com.astra.service;
 
+import com.astra.repository.EventRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +15,9 @@ public class LocationService {
 
     private final String apiKey;
     private final RestTemplate restTemplate;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     public LocationService(@Value("${opencage.api-key}") String apiKey) {
         this.apiKey = apiKey;
@@ -38,7 +43,6 @@ public class LocationService {
             Map first = results.get(0);
             Map components = (Map) first.get("components");
 
-            // best available name
             if (components.get("city") != null) return components.get("city").toString();
             if (components.get("town") != null) return components.get("town").toString();
             if (components.get("village") != null) return components.get("village").toString();
@@ -48,7 +52,24 @@ public class LocationService {
             return "Unknown";
 
         } catch (Exception e) {
-            return "Unknown"; // safe fallback
+            return "Unknown";
+        }
+    }
+
+    // ------------------------------
+    // NEW: Peltier state fetch
+    // ------------------------------
+    public String getLatestPeltierState(String boxId) {
+        try {
+            return eventRepository.findLatestPeltierEvent(boxId)
+                    .map(e -> e.getType())
+                    .map(t -> 
+                            t.equalsIgnoreCase("peltier_on") ? "ON" :
+                            t.equalsIgnoreCase("peltier_off") ? "OFF" : "UNKNOWN"
+                    )
+                    .orElse("UNKNOWN");
+        } catch (Exception e) {
+            return "UNKNOWN";
         }
     }
 }
