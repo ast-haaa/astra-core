@@ -1,5 +1,4 @@
 FROM maven:3.9.6-eclipse-temurin-17 AS builder
-
 WORKDIR /build
 
 # Copy Maven project files
@@ -13,8 +12,15 @@ RUN mvn -DskipTests package
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 
+# Default MQTT broker (Docker network resolves "mosquitto")
+ENV MQTT_BROKER=tcp://mosquitto:1883
+
+# Create non-root user
+RUN useradd -m -s /bin/bash astra || true
+USER astra
+
 # Copy the jar built in previous stage
 COPY --from=builder /build/target/*.jar app.jar
 
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

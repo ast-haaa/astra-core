@@ -1,5 +1,6 @@
 package com.astra.config;
 
+import com.astra.service.AckService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
@@ -22,64 +23,69 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.UUID;  // <-- IMPORTANT FIX: add UUID
+
 @Configuration
 public class MqttConfig {
 
+    private final com.astra.service.MqttListenerService mqttListenerService;
+    private final AckService ackService;
+
     private static final Logger log = LoggerFactory.getLogger(MqttConfig.class);
 
-    @Value("${mqtt.broker.url:tcp://mosquitto:1883}")
+    @Value("${mqtt.broker:tcp://localhost:1883}")
     private String brokerUrl;
 
-    @Value("${mqtt.client.id:astra-backend-client}")
-    private String clientId;
+    // IMPORTANT FIX:
+    // If mqtt.clientId is blank → auto generate unique ID
+    @Value("${mqtt.clientId:}") 
+    private String configuredClientId;
 
     @Value("${mqtt.topic:boxes/+/telemetry}")
     private String topicFilter;
 
-    // scheduler for reconnect attempts
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    @Value("${mqtt.ackTopic:boxes/+/ack}")
+    private String ackTopic;
 
-    // small counter used for exponential backoff (capped)
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private final AtomicInteger backoffSeconds = new AtomicInteger(0);
 
     private MqttClient client;
     private MqttConnectOptions options;
 
-    // The service that processes & saves telemetry
-    private final com.astra.service.MqttListenerService mqttListenerService;
-
-    // Constructor injection for the listener service
-    @Autowired
-    public MqttConfig(com.astra.service.MqttListenerService mqttListenerService) {
+    public MqttConfig(com.astra.service.MqttListenerService mqttListenerService,
+                      AckService ackService) {
         this.mqttListenerService = mqttListenerService;
+        this.ackService = ackService;
     }
 
     @Bean
     public MqttConnectOptions mqttConnectOptions() {
         MqttConnectOptions opts = new MqttConnectOptions();
-        opts.setAutomaticReconnect(true); // Paho's auto-reconnect
+        opts.setAutomaticReconnect(true);
         opts.setCleanSession(true);
-        // opts.setUserName("user"); opts.setPassword("pass".toCharArray());
         this.options = opts;
         return opts;
     }
 
     @Bean
     public MqttClient mqttClient(MqttConnectOptions options) throws MqttException {
-        MemoryPersistence persistence = new MemoryPersistence();
-        client = new MqttClient(brokerUrl, clientId, persistence);
+
+        // FINAL FIX: generate unique client ID **only if empty**
+        String clientId = (configuredClientId == null || configuredClientId.isBlank() || "astra-backend-client".equals(configuredClientId))
+                ? "astra-backend-" + UUID.randomUUID().toString().substring(0, 8)
+                : configuredClientId;
+
+        log.warn("MQTT Using clientId={}", clientId);
+
+        client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
         client.setCallback(new ReconnectingMqttCallback());
-        // do NOT block startup forever; attemptConnect handles connecting asynchronously
-        // but try an immediate connect attempt synchronously for quick success:
+
         attemptConnect(0);
         return client;
     }
 
-    /**
-     * Try to connect now or schedule after delaySeconds.
-     */
     private synchronized void attemptConnect(int delaySeconds) {
-        // schedule the connect task after delaySeconds
         scheduler.schedule(() -> {
             try {
                 if (client == null) {
@@ -88,24 +94,25 @@ public class MqttConfig {
                 }
                 if (client.isConnected()) {
                     log.debug("MQTT client already connected.");
-                    // reset backoff on successful connect
                     backoffSeconds.set(0);
                     return;
                 }
+
                 log.info("Attempting MQTT connect to {} (delay {})", brokerUrl, delaySeconds);
                 client.connect(options);
                 log.info("Connected to MQTT broker: {}", brokerUrl);
 
-                // subscribe after successful connect
                 client.subscribe(topicFilter);
                 log.info("Subscribed to topic filter: {}", topicFilter);
 
-                // reset backoff on success
+                client.subscribe(ackTopic);
+                log.info("Subscribed to ACK topic: {}", ackTopic);
+
                 backoffSeconds.set(0);
+
             } catch (MqttException e) {
-                // schedule next retry with exponential backoff
                 int current = backoffSeconds.updateAndGet(v -> v == 0 ? 2 : Math.min(v * 2, 120));
-                log.warn("MQTT connect failed: {} — scheduling retry in {}s", e.getMessage(), current);
+                log.warn("MQTT connect failed: {} — retry in {}s", e.getMessage(), current);
                 attemptConnect(current);
             }
         }, delaySeconds, TimeUnit.SECONDS);
@@ -129,28 +136,32 @@ public class MqttConfig {
         }
     }
 
-    /**
-     * Callback that triggers reconnect scheduling on connection loss.
-     * Messages are handed off to MqttListenerService.processMessage(...)
-     */
     class ReconnectingMqttCallback implements MqttCallback {
+
         @Override
         public void connectionLost(Throwable cause) {
             log.warn("MQTT connection lost: {}", cause == null ? "unknown" : cause.getMessage());
-            // schedule reconnect attempt using current backoff (non-zero -> use that, else start with 2s)
             int next = backoffSeconds.get() == 0 ? 2 : backoffSeconds.get();
             attemptConnect(next);
         }
 
         @Override
         public void messageArrived(String topic, MqttMessage message) throws Exception {
-            // hand raw bytes to centralized processor in MqttListenerService
+            String payload = new String(message.getPayload(), StandardCharsets.UTF_8);
+            log.info("MQTT IN topic={} len={}", topic, message.getPayload().length);
+
+            if (topic.startsWith("boxes/") && topic.endsWith("/ack")) {
+                log.info("Routing to AckService: {}", topic);
+                ackService.handleAck(topic, payload);
+                return;
+            }
+
             mqttListenerService.processMessage(topic, message.getPayload());
         }
 
         @Override
         public void deliveryComplete(IMqttDeliveryToken token) {
-            // not used for subscribers
         }
     }
 }
+
