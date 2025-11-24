@@ -1,14 +1,13 @@
 package com.astra.service;
 
+import com.astra.api.dto.TelemetryMessageDto;
 import com.astra.model.TelemetrySnapshot;
+import com.astra.repository.DeviceStateRepository;
 import com.astra.repository.TelemetrySnapshotRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-// If you're on newer Jackson, prefer JsonReadFeature (see comment below)
-// import com.fasterxml.jackson.core.json.JsonReadFeature;
-
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -20,27 +19,28 @@ import java.util.UUID;
 public class MqttListenerService {
 
     private final TelemetrySnapshotRepository repository;
+    private final DeviceStateRepository deviceStateRepository;
     private final ObjectMapper objectMapper;
     private final RuleEngineService ruleEngineService;
+    private final TelemetryService telemetryService; // <-- NEW
 
     public MqttListenerService(TelemetrySnapshotRepository repository,
-                               RuleEngineService ruleEngineService) {
+                               DeviceStateRepository deviceStateRepository,
+                               RuleEngineService ruleEngineService,
+                               TelemetryService telemetryService) { // <-- NEW ARG
         this.repository = repository;
+        this.deviceStateRepository = deviceStateRepository;
         this.ruleEngineService = ruleEngineService;
+        this.telemetryService = telemetryService; // <-- ASSIGN
 
         // ---- ObjectMapper leniency settings ----
         this.objectMapper = new ObjectMapper();
-
-        // Works on older Jackson:
         this.objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         this.objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
         try {
-            // Some Jackson versions don't have ALLOW_TRAILING_COMMA on JsonParser.Feature.
-            // If this line fails to compile, comment it out and use the JsonReadFeature block below.
             this.objectMapper.configure(JsonParser.Feature.ALLOW_TRAILING_COMMA, true);
         } catch (NoSuchFieldError | Exception ignored) {
-            // Fallback to JsonReadFeature if available:
-            // this.objectMapper.enable(JsonReadFeature.ALLOW_TRAILING_COMMA.mappedFeature());
+            // fallback ignored
         }
 
         System.out.println("MqttListenerService initialized (subscription handled by MqttConfig).");
@@ -48,7 +48,7 @@ public class MqttListenerService {
 
     /**
      * Called by MqttConfig when a message arrives.
-     * Steps: parse → normalize → save → run rules.
+     * Steps: parse → normalize → save → run rules → update GPS → batch/sensor/alert.
      */
     public void processMessage(String topic, byte[] payloadBytes) {
         String payload = new String(payloadBytes, StandardCharsets.UTF_8);
@@ -68,15 +68,45 @@ public class MqttListenerService {
                     ? node.get("boxId").asText()
                     : extractBoxId(topic);
 
+            // === New Batch/Sensor/Alert Pipeline ===
+            try {
+                processForBatchSensorAlert(node, boxId);
+            } catch (Exception e) {
+                System.err.println("⚠ Failed Batch/Sensor/Alert pipeline: " + e.getMessage());
+            }
+
             // Save snapshot (payload stored as canonical JSON)
             TelemetrySnapshot snapshot = new TelemetrySnapshot();
             snapshot.setId(UUID.randomUUID().toString());
             snapshot.setBoxId(boxId);
-            snapshot.setTimestamp(Instant.now());
+
+            // prefer timestamp from payload if present
+            if (node.hasNonNull("timestamp")) {
+                try {
+                    snapshot.setTimestamp(Instant.parse(node.get("timestamp").asText()));
+                } catch (Exception e) {
+                    snapshot.setTimestamp(Instant.now());
+                }
+            } else {
+                snapshot.setTimestamp(Instant.now());
+            }
+
             snapshot.setPayload(objectMapper.writeValueAsString(node));
             repository.save(snapshot);
 
             System.out.println("✅ Saved telemetry to DB for box: " + boxId);
+
+            // ---- GPS handling: update device_state.last_location if gps object present ----
+            JsonNode gpsNode = node.path("gps");
+            if (!gpsNode.isMissingNode() && !gpsNode.isNull()) {
+                try {
+                    String gpsJson = objectMapper.writeValueAsString(gpsNode);
+                    deviceStateRepository.updateLastLocation(boxId, gpsJson);
+                    System.out.println("📍 Updated last_location for " + boxId + " → " + gpsJson);
+                } catch (Exception e) {
+                    System.err.println("⚠ Failed to update last_location for " + boxId + ": " + e.getMessage());
+                }
+            }
 
             // ---- Run rules (only if temperature exists) ----
             if (node.hasNonNull("temp")) {
@@ -111,7 +141,45 @@ public class MqttListenerService {
         // Expecting something like "boxes/<id>/telemetry"
         if (topic == null || topic.isEmpty()) return "unknown";
         String[] parts = topic.split("/");
-        // If your broker uses a different layout, tweak the index here.
         return parts.length > 1 ? parts[1] : "unknown";
+    }
+
+    // New helper for Batch/Sensor/Alert
+    private void processForBatchSensorAlert(JsonNode node, String boxId) {
+        String batchCode = node.hasNonNull("batchCode")
+                ? node.get("batchCode").asText()
+                : "BATCH-" + boxId;
+
+        Double temperature = node.hasNonNull("temp") ? node.get("temp").asDouble() : null;
+        Double humidity = node.hasNonNull("humidity") ? node.get("humidity").asDouble() : null;
+        Double voc = node.hasNonNull("voc") ? node.get("voc").asDouble() : null;
+        Double weight = node.hasNonNull("weight") ? node.get("weight").asDouble() : null;
+
+        Double gpsLat = node.path("gps").path("lat").isNumber()
+                ? node.path("gps").path("lat").asDouble()
+                : null;
+        Double gpsLon = node.path("gps").path("lon").isNumber()
+                ? node.path("gps").path("lon").asDouble()
+                : null;
+
+        Boolean tamperFlag = node.hasNonNull("tamper") && node.get("tamper").asBoolean();
+
+        Long ts = node.hasNonNull("timestamp")
+                ? Instant.parse(node.get("timestamp").asText()).toEpochMilli()
+                : Instant.now().toEpochMilli();
+
+        TelemetryMessageDto dto = new TelemetryMessageDto();
+        dto.setBoxId(boxId);
+        dto.setBatchCode(batchCode);
+        dto.setTemperatureC(temperature);
+        dto.setHumidityPercent(humidity);
+        dto.setVocPpm(voc);
+        dto.setWeightKg(weight);
+        dto.setGpsLat(gpsLat);
+        dto.setGpsLon(gpsLon);
+        dto.setTamperFlag(tamperFlag);
+        dto.setTimestampEpochMillis(ts);
+
+        telemetryService.handleTelemetry(dto);
     }
 }

@@ -1,34 +1,26 @@
-version: "3.9"
+server:
+  port: ${SERVER_PORT:8080}
 
-services:
-  mysql:
-    image: mysql:8.0
-    container_name: astra-backend-mysql-1
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: rootsecret
-      MYSQL_DATABASE: herbbox          # <-- matches your JDBC URL
-      MYSQL_USER: appuser
-      MYSQL_PASSWORD: secret
-    ports:
-      - "3306:3306"                    # use "3307:3306" if 3306 is busy locally
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "appuser", "-psecret"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/herbbox?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:appuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:StrongP@ssw0rd!}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
-  mosquitto:
-    image: eclipse-mosquitto:2
-    container_name: astra-backend-mosquitto-1
-    restart: always
-    ports:
-      - "1883:1883"
-      # - "9001:9001"                  # uncomment if you need MQTT over WebSocket
-    volumes:
-      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+mqtt:
+  broker: ${MQTT_BROKER:tcp://localhost:1883}
+  client-id: ${MQTT_CLIENT_ID:astra-backend-client}
+  topic: boxes/+/telemetry
+  ackTopic: boxes/+/ack
 
-volumes:
-  mysql_data:
+opencage:
+  api-key: ea754dfa4b004a5e8571b1ac78ee3328
+

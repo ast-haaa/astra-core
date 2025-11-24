@@ -13,12 +13,9 @@ mqtt.client-id=${MQTT_CLIENT_ID:astra-backend-client}
 mqtt.topic=boxes/+/telemetry
 mqtt.ackTopic=boxes/+/ack
 
+Add-Content -Path src\main\resources\application.properties -Value "`n# duplicate-safe mqtt client id (camelCase + kebab-case) `nmqtt.clientId=${MQTT_CLIENT_ID:astra-backend-client}"
 
 
 # duplicate-safe mqtt client id (camelCase + kebab-case)
 
-
-# mqtt client-id (camelCase)
-mqtt.clientId=${MQTT_CLIENT_ID:astra-backend-client}
-
-opencage.api-key=ea754dfa4b004a5e8571b1ac78ee3328
+mqtt.clientId=
