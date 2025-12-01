@@ -18,6 +18,9 @@ public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    
+   @Column(name = "batch_code")
+   private String batchCode;
 
     // maps to alerts.device_id
     @Column(name = "device_id", nullable = false)
@@ -106,4 +109,14 @@ public class Alert {
 
     public String getActionTakenBy() { return actionTakenBy; }
     public void setActionTakenBy(String actionTakenBy) { this.actionTakenBy = actionTakenBy; }
+
+public String getBatchCode() { 
+    return batchCode; 
+}
+
+public void setBatchCode(String batchCode) { 
+    this.batchCode = batchCode; 
+}
+
+
 }
