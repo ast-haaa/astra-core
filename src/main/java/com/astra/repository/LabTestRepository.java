@@ -6,4 +6,5 @@ import java.util.List;
 
 public interface LabTestRepository extends JpaRepository<LabTest, Long> {
     List<LabTest> findByBatchCodeOrderByCreatedAtDesc(String batchCode);
+    List<LabTest> findByBatchCode(String batchCode);
 }

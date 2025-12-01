@@ -18,6 +18,10 @@ public class TelemetryMessageDto {
     private Long timestampEpochMillis; // optional, can be null -> use server time
 
     // getters & setters
+    private String locationText;
+public String getLocationText() { return locationText; }
+public void setLocationText(String locationText) { this.locationText = locationText; }
+
 
     public String getBoxId() {
         return boxId;
