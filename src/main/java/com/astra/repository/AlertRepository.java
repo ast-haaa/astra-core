@@ -11,7 +11,8 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
     List<Alert> findByBatchOrderByCreatedAtDesc(Batch batch);
 
     List<Alert> findByBoxIdAndStatus(String boxId, Alert.Status status);
-
+    
+      List<Alert> findByBatchCode(String batchCode);
     // 🔥 NEW — count alerts for dashboard
     long countByBoxId(String boxId);
 }

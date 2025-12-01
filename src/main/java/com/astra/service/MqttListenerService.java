@@ -22,16 +22,19 @@ public class MqttListenerService {
     private final DeviceStateRepository deviceStateRepository;
     private final ObjectMapper objectMapper;
     private final RuleEngineService ruleEngineService;
-    private final TelemetryService telemetryService; // <-- NEW
+    private final TelemetryService telemetryService;
+    private final GeocodeService geocodeService;
 
     public MqttListenerService(TelemetrySnapshotRepository repository,
                                DeviceStateRepository deviceStateRepository,
                                RuleEngineService ruleEngineService,
-                               TelemetryService telemetryService) { // <-- NEW ARG
+                               TelemetryService telemetryService,
+                               GeocodeService geocodeService) {
         this.repository = repository;
         this.deviceStateRepository = deviceStateRepository;
         this.ruleEngineService = ruleEngineService;
-        this.telemetryService = telemetryService; // <-- ASSIGN
+        this.telemetryService = telemetryService;
+        this.geocodeService = geocodeService;
 
         // ---- ObjectMapper leniency settings ----
         this.objectMapper = new ObjectMapper();
@@ -180,6 +183,31 @@ public class MqttListenerService {
         dto.setTamperFlag(tamperFlag);
         dto.setTimestampEpochMillis(ts);
 
+        // === GEOCODE: best-effort attach human-readable address if GPS present ===
+        if (dto.getGpsLat() != null && dto.getGpsLon() != null) {
+            try {
+                double lat = dto.getGpsLat();
+                double lon = dto.getGpsLon();
+                String addr = geocodeService.reverse(lat, lon);
+                if (addr != null && !addr.isBlank()) {
+                    try {
+                        // prefer direct setter
+                        dto.setLocationText(addr);
+                    } catch (NoSuchMethodError | AbstractMethodError | Exception ignore) {
+                        // if setter doesn't exist, attempt reflective setter (safe)
+                        try {
+                            dto.getClass().getMethod("setLocationText", String.class).invoke(dto, addr);
+                        } catch (NoSuchMethodException nm) {
+                            // no setter available — ignore, telemetry still processed
+                        }
+                    }
+                }
+            } catch (Throwable ge) {
+                System.err.println("⚠ Geocode failed: " + ge.getMessage());
+            }
+        }
+
+        // HAND OFF to telemetryService (same as before)
         telemetryService.handleTelemetry(dto);
     }
 }

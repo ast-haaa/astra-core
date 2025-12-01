@@ -39,4 +39,17 @@ public class MqttPublisherService {
         client.disconnect();
         client.close();
     }
+
+    
+public void publish(String topic, String payload) {
+    
+}
+public void publish(String topic, Object payload) {
+    try {
+        String json = new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(payload);
+        publish(topic, json);
+    } catch(Exception e) {
+        publish(topic, payload.toString());
+    }
+}
 }

@@ -11,6 +11,10 @@ public class Event {
     @Column(length = 36)
     private String id;
 
+        @Column(name = "client_event_id", length = 128)
+    private String clientEventId;
+
+
     @Column(name = "box_id", nullable = false)
     private String boxId;
 
@@ -30,6 +34,9 @@ public class Event {
     private LocalDateTime ts;
 
     // ---- Getters & Setters ----
+        public String getClientEventId() { return clientEventId; }
+    public void setClientEventId(String clientEventId) { this.clientEventId = clientEventId; }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 
