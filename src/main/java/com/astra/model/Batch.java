@@ -1,9 +1,13 @@
 package com.astra.model;
 
 import jakarta.persistence.*;
-import java.time.Instant;
-import java.util.List;
+import java.time.LocalDateTime;
 
+/**
+ * Batch entity – public, complete getters/setters used by controllers/services.
+ * Add/remove fields if you already have some in your original class, but keep
+ * the method names (getBatchCode, setHerbName, setFarmerName, setOriginLocation, setStatus).
+ */
 @Entity
 @Table(name = "batches")
 public class Batch {
@@ -12,10 +16,10 @@ public class Batch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "batch_code", nullable = false, unique = true)
+    @Column(name = "batch_code", unique = true)
     private String batchCode;
 
-    @Column(name = "herb_name", nullable = false)
+    @Column(name = "herb_name")
     private String herbName;
 
     @Column(name = "farmer_name")
@@ -24,70 +28,53 @@ public class Batch {
     @Column(name = "origin_location")
     private String originLocation;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt = Instant.now();
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private BatchStatus status = BatchStatus.NORMAL;
 
-    @OneToMany(mappedBy = "batch", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SensorReading> readings;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "lab_result")
+    private LabResult labResult = LabResult.NOT_TESTED;
 
-    @OneToMany(mappedBy = "batch", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Alert> alerts;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    // getters & setters
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public Long getId() {
-        return id;
-    }
+    public Batch() {}
 
-    public String getBatchCode() {
-        return batchCode;
-    }
+    // --- ID ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
-    }
+    // --- Batch code ---
+    public String getBatchCode() { return batchCode; }
+    public void setBatchCode(String batchCode) { this.batchCode = batchCode; }
 
-    public String getHerbName() {
-        return herbName;
-    }
+    // --- Herb name (used by TelemetryService) ---
+    public String getHerbName() { return herbName; }
+    public void setHerbName(String herbName) { this.herbName = herbName; }
 
-    public void setHerbName(String herbName) {
-        this.herbName = herbName;
-    }
+    // --- Farmer name (used by TelemetryService) ---
+    public String getFarmerName() { return farmerName; }
+    public void setFarmerName(String farmerName) { this.farmerName = farmerName; }
 
-    public String getFarmerName() {
-        return farmerName;
-    }
+    // --- Origin location (used by TelemetryService) ---
+    public String getOriginLocation() { return originLocation; }
+    public void setOriginLocation(String originLocation) { this.originLocation = originLocation; }
 
-    public void setFarmerName(String farmerName) {
-        this.farmerName = farmerName;
-    }
+    // --- Status ---
+    public BatchStatus getStatus() { return status; }
+    public void setStatus(BatchStatus status) { this.status = status; }
 
-    public String getOriginLocation() {
-        return originLocation;
-    }
+    // --- Lab result ---
+    public LabResult getLabResult() { return labResult; }
+    public void setLabResult(LabResult labResult) { this.labResult = labResult; }
 
-    public void setOriginLocation(String originLocation) {
-        this.originLocation = originLocation;
-    }
-
-    public Instant getCreatedAt() {
-        return createdAt;
-    }
-
-    public List<SensorReading> getReadings() {
-        return readings;
-    }
-
-    public void setReadings(List<SensorReading> readings) {
-        this.readings = readings;
-    }
-
-    public List<Alert> getAlerts() {
-        return alerts;
-    }
-
-    public void setAlerts(List<Alert> alerts) {
-        this.alerts = alerts;
-    }
+    // --- timestamps ---
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }
