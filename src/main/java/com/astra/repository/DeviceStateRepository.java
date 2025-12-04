@@ -18,4 +18,8 @@ public interface DeviceStateRepository extends JpaRepository<DeviceState, String
     @Transactional
     @Query(value = "UPDATE device_state SET last_location = CAST(:loc AS JSON) WHERE device_id = :deviceId", nativeQuery = true)
     int updateLastLocation(@Param("deviceId") String deviceId, @Param("loc") String loc);
+
+    //  CORRECT query
+    @Query("SELECT d.lastLocation FROM DeviceState d WHERE d.deviceId = :deviceId")
+    String findLastLocation(@Param("deviceId") String deviceId);
 }

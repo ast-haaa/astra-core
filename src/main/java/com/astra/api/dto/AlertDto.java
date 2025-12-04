@@ -23,7 +23,7 @@ public class AlertDto {
         AlertDto d = new AlertDto();
         d.id = a.getId();
         d.boxId = a.getBoxId();
-        d.message = a.getMessage();
+        d.message = a.getMessage();               // raw message (EN)
         d.parameter = a.getParameterName();
         d.currentValue = a.getCurrentValue();
         d.thresholdLow = a.getThresholdLow();
@@ -32,11 +32,15 @@ public class AlertDto {
         d.actionTakenBy = a.getActionTakenBy();
         d.createdAt = a.getCreatedAt();
         d.updatedAt = a.getUpdatedAt();
+
         if (a.getBatch() != null) {
             d.batchCode = a.getBatch().getBatchCode();
         }
         return d;
     }
+
+    // ❌ THIS METHOD REMOVED (translationService not available in DTO)
+    // private AlertDto toDto(Alert alert, String lang) { ... }
 
     // ---- getters & setters ----
     public Long getId() { return id; }

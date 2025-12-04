@@ -1,70 +1,65 @@
 package com.astra.service;
 
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.Map;
 
 @Service
+@Slf4j
 public class ActuatorService {
 
-    @Value("${mqtt.broker.url:tcp://mosquitto:1883}")
-    private String brokerUrl;
+    private final MqttClient client;
 
-    private final JdbcTemplate jdbc;
+    public ActuatorService(
+            @Value("${mqtt.broker:tcp://localhost:1883}") String brokerUrl
+    ) throws MqttException {
 
-    // a tiny publisher client, created lazily to avoid bean cycles
-    private volatile MqttClient pubClient;
+        String clientId = "astra-actuator-" + UUID.randomUUID().toString().substring(0, 8);
 
-    public ActuatorService(JdbcTemplate jdbc) {
-        this.jdbc = jdbc;
-    }
+        log.info("⚙️ Actuator MQTT connecting → {} (clientId={})", brokerUrl, clientId);
 
-    public void setPeltier(String boxId, boolean on) {
-        String topic = "boxes/" + boxId + "/cmd";
-        String payload = "{\"peltier\":" + (on ? "true" : "false") + "}";
-
-        try {
-            ensureConnected();
-
-            MqttMessage msg = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
-            msg.setQos(1);          // at-least-once
-            msg.setRetained(false); // dev: no retain
-
-            System.out.println("➡️  Publishing to " + topic + " :: " + payload + " (qos=1, retain=false)");
-            pubClient.publish(topic, msg);
-            System.out.println("✅ Publish OK to " + topic);
-
-        } catch (Exception e) {
-            System.err.println("❌ MQTT publish failed: " + e.getMessage());
-        }
-
-        // 2) upsert device_state (still storing "ON"/"OFF" for now; later convert to boolean)
-        jdbc.update("""
-            INSERT INTO device_state(device_id, peltier, updated_at)
-            VALUES (?, ?, NOW(6))
-            ON DUPLICATE KEY UPDATE peltier=VALUES(peltier), updated_at=NOW(6)
-        """, boxId, on ? "ON" : "OFF");
-    }
-
-    private synchronized void ensureConnected() throws Exception {
-        if (pubClient != null && pubClient.isConnected()) return;
-
-        String clientId = "astra-actuator-pub-" + UUID.randomUUID();
-        pubClient = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
+        this.client = new MqttClient(brokerUrl, clientId, new MemoryPersistence());
 
         MqttConnectOptions opts = new MqttConnectOptions();
         opts.setAutomaticReconnect(true);
         opts.setCleanSession(true);
 
-        System.out.println("🔌 Actuator publisher connecting to " + brokerUrl);
-        pubClient.connect(opts);
-        System.out.println("🔌 Actuator publisher connected");
+        this.client.connect(opts);
+
+        log.info("✅ Actuator MQTT connected");
+    }
+
+    /**
+     * Turn Peltier ON/OFF for a box.
+     */
+    public void setPeltier(String boxId, boolean on) {
+        try {
+            if (!client.isConnected()) {
+                log.warn("Actuator MQTT not connected, reconnecting...");
+                client.reconnect();
+            }
+
+            String topic = "boxes/" + boxId + "/cmd";
+
+            String payload = "{\"peltier\":\"" + (on ? "on" : "off") + "\"}";
+
+            log.info("📤 Publishing actuator cmd topic={} payload={}", topic, payload);
+
+            MqttMessage msg = new MqttMessage(payload.getBytes(StandardCharsets.UTF_8));
+            msg.setQos(1);
+
+            client.publish(topic, msg);
+
+            log.info("✅ Actuator cmd published");
+
+        } catch (Exception e) {
+            log.error("❌ MQTT publish failed in ActuatorService: {}", e.getMessage(), e);
+        }
     }
 }

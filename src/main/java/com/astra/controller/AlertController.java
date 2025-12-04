@@ -4,133 +4,136 @@ import com.astra.api.dto.AlertActionRequest;
 import com.astra.api.dto.AlertDto;
 import com.astra.model.Alert;
 import com.astra.model.AlertAction;
-import com.astra.model.Batch;
 import com.astra.model.BatchStatus;
 import com.astra.repository.AlertActionRepository;
 import com.astra.repository.AlertRepository;
 import com.astra.repository.BatchRepository;
+import com.astra.service.MqttPublisherService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * AlertController: exposes alert list + action endpoint.
- * This version also creates an AlertAction audit record and updates Batch status
- * if batchCode is present on the Alert entity.
- */
 @RestController
 @RequestMapping("/api/alerts")
 public class AlertController {
 
     private final AlertRepository alertRepository;
-    private final AlertActionRepository alertActionRepository;
-    private final BatchRepository batchRepository;
+    private final AlertActionRepository actionRepo;
+    private final BatchRepository batchRepo;
+    private final MqttPublisherService mqtt;
 
     public AlertController(AlertRepository alertRepository,
-                           AlertActionRepository alertActionRepository,
-                           BatchRepository batchRepository) {
+                           AlertActionRepository actionRepo,
+                           BatchRepository batchRepo,
+                           MqttPublisherService mqtt) {
         this.alertRepository = alertRepository;
-        this.alertActionRepository = alertActionRepository;
-        this.batchRepository = batchRepository;
+        this.actionRepo = actionRepo;
+        this.batchRepo = batchRepo;
+        this.mqtt = mqtt;
     }
 
-    // 1) Get all OPEN alerts (for dashboard)
     @GetMapping("/open")
-    public ResponseEntity<List<AlertDto>> getOpenAlerts() {
-        List<Alert> alerts = alertRepository.findAll()
-                .stream()
+    public List<AlertDto> openAlerts() {
+        return alertRepository.findAll().stream()
                 .filter(a -> a.getStatus() == Alert.Status.OPEN)
-                .collect(Collectors.toList());
-
-        List<AlertDto> dtoList = alerts.stream()
                 .map(AlertDto::fromEntity)
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(dtoList);
     }
 
-    // 2) Get alerts by box
     @GetMapping("/box/{boxId}")
-    public ResponseEntity<List<AlertDto>> getAlertsByBox(@PathVariable String boxId) {
-        List<Alert> alerts = alertRepository.findByBoxIdAndStatus(boxId, Alert.Status.OPEN);
-
-        List<AlertDto> dtoList = alerts.stream()
-                .map(AlertDto::fromEntity)
+    public List<AlertDto> boxAlerts(@PathVariable String boxId) {
+        return alertRepository.findByBoxIdAndStatus(boxId, Alert.Status.OPEN)
+                .stream().map(AlertDto::fromEntity)
                 .collect(Collectors.toList());
-
-        return ResponseEntity.ok(dtoList);
     }
 
-    // 3) Change alert status (resolve / ignore / halt / recall)
+@PostMapping("/{id}/ack")
+public ResponseEntity<?> ack(@PathVariable Long id) {
+    return alertRepository.findById(id).map(a -> {
+
+        a.setAcknowledgedAt(LocalDateTime.now());
+        a.setStatus(Alert.Status.ACKED);
+
+        alertRepository.save(a);
+
+        return ResponseEntity.ok(Map.of("ok", true));
+    }).orElse(ResponseEntity.notFound().build());
+}
+
+
+
     @PostMapping("/{id}/action")
-    public ResponseEntity<AlertDto> takeActionOnAlert(
-            @PathVariable Long id,
-            @RequestBody AlertActionRequest request
-    ) {
+    public ResponseEntity<?> action(@PathVariable Long id,
+                                    @RequestBody AlertActionRequest req) {
 
-        return alertRepository.findById(id)
-                .map(alert -> {
+        return alertRepository.findById(id).map(alert -> {
 
-                    if (request.getAction() == null) {
-                        return ResponseEntity.badRequest().<AlertDto>build();
-                    }
+            String a = req.getAction().toUpperCase();
 
-                    String actionUpper = request.getAction().toUpperCase();
+            switch (a) {
+                case "RESOLVE" -> alert.setStatus(Alert.Status.RESOLVED);
+                case "IGNORE" -> alert.setStatus(Alert.Status.IGNORED);
+                case "HALT" -> alert.setStatus(Alert.Status.HALTED);
+                case "RECALL" -> alert.setStatus(Alert.Status.RECALLED);
+            }
 
-                    switch (actionUpper) {
-                        case "RESOLVE":
-                            alert.setStatus(Alert.Status.RESOLVED);
-                            break;
-                        case "IGNORE":
-                            alert.setStatus(Alert.Status.IGNORED);
-                            break;
-                        case "HALT":
-                            alert.setStatus(Alert.Status.HALTED);
-                            break;
-                        case "RECALL":
-                            alert.setStatus(Alert.Status.RECALLED);
-                            break;
-                        default:
-                            return ResponseEntity.badRequest().<AlertDto>build();
-                    }
+            alertRepository.save(alert);
 
-                    alert.setActionTakenBy(request.getActor());
-                    Alert saved = alertRepository.save(alert);
+            // -------- FIX: BatchCode from Alert.BATCH -------
+            String batchCode = alert.getBatch() != null ? alert.getBatch().getBatchCode() : null;
 
-                    // --- create audit log in alert_actions table ---
-                    AlertAction log = new AlertAction();
-                    log.setAlertId(saved.getId());
-                    // attempt to set batchCode if Alert has it (most DTOs do)
-                    try {
-                        String batchCode = saved.getBatchCode(); // make sure Alert has getBatchCode()
-                        log.setBatchCode(batchCode);
-                    } catch (NoSuchMethodError | NoClassDefFoundError | Exception ignored) {
-                        // if Alert doesn't expose batchCode, ignore (safe fallback)
-                    }
-                    log.setActionTaken(actionUpper);
-                    log.setActor(request.getActor());
-                    // if you add notes to AlertActionRequest later, map them here
-                    log.setNotes(null);
-                    alertActionRepository.save(log);
+            AlertAction log = new AlertAction();
+            log.setAlertId(alert.getId());
+            log.setBatchCode(batchCode);
+            log.setActionTaken(a);
+            log.setActor(req.getActor());
+            actionRepo.save(log);
 
-                    // --- update Batch status depending on action and batchCode (optional simple logic) ---
-                    if (log.getBatchCode() != null) {
-                        batchRepository.findByBatchCode(log.getBatchCode()).ifPresent(batch -> {
-                            if ("RESOLVE".equals(actionUpper)) {
-                                // simple heuristic: resolved alerts can bring batch back to NORMAL
-                                batch.setStatus(BatchStatus.NORMAL);
-                            } else if ("RECALL".equals(actionUpper)) {
-                                batch.setStatus(BatchStatus.RECALLED);
-                            }
-                            batchRepository.save(batch);
-                        });
-                    }
+            if (batchCode != null) {
+                batchRepo.findByBatchCode(batchCode).ifPresent(b -> {
+                    if ("RECALL".equals(a)) b.setStatus(BatchStatus.RECALLED);
+                    if ("RESOLVE".equals(a)) b.setStatus(BatchStatus.NORMAL);
+                    batchRepo.save(b);
+                });
+            }
 
-                    return ResponseEntity.ok(AlertDto.fromEntity(saved));
+            return ResponseEntity.ok(AlertDto.fromEntity(alert));
 
-                })
-                .orElse(ResponseEntity.notFound().build());
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping("/{id}/action/device")
+    public ResponseEntity<?> deviceAction(@PathVariable Long id,
+                                          @RequestBody Map<String,Object> req) {
+        return alertRepository.findById(id).map(a -> {
+
+            String actionType = (String) req.getOrDefault("actionType", "PELTIER_ON");
+            Map<String,Object> params = (Map<String,Object>) req.getOrDefault("params", Map.of());
+
+            String topic = "boxes/" + a.getBoxId() + "/commands";
+
+            Map<String,Object> payload = Map.of(
+                    "cmd", "actuator",
+                    "action", actionType,
+                    "params", params,
+                    "reqId", UUID.randomUUID().toString()
+            );
+
+            mqtt.publish(topic, payload);
+
+            a.setActionType(actionType);
+            a.setActionParams(payload.toString());
+            a.setActionTakenAt(LocalDateTime.now());
+            a.setStatus(Alert.Status.RESOLVED);
+            alertRepository.save(a);
+
+            return ResponseEntity.ok(Map.of("ok", true, "topic", topic));
+        }).orElse(ResponseEntity.notFound().build());
     }
 }

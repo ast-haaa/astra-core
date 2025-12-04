@@ -4,75 +4,91 @@ import com.astra.api.dto.BoxLatestReadingDto;
 import com.astra.model.SensorReading;
 import com.astra.repository.AlertRepository;
 import com.astra.repository.SensorReadingRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class BoxReadingsService {
 
     private final SensorReadingRepository sensorReadingRepository;
     private final AlertRepository alertRepository;
     private final LocationService locationService;
 
-    public BoxReadingsService(SensorReadingRepository sensorReadingRepository,
-                              AlertRepository alertRepository,
-                              LocationService locationService) {
-        this.sensorReadingRepository = sensorReadingRepository;
-        this.alertRepository = alertRepository;
-        this.locationService = locationService;
-    }
-
+    // -------------------------------------------------
+    // 1) Latest readings for ALL boxes
+    // -------------------------------------------------
     public List<BoxLatestReadingDto> getLatestReadings() {
 
-        // 1) Fetch all readings sorted newest-first
-        List<SensorReading> allReadings = sensorReadingRepository.findAllByOrderByTimestampDesc();
+        // Fetch all readings sorted by newest first
+        List<SensorReading> all = sensorReadingRepository.findAllByOrderByTimestampDesc();
 
-        // 2) Pick the latest reading per boxId
-        Map<String, SensorReading> latestPerBox = new LinkedHashMap<>();
-        for (SensorReading r : allReadings) {
+        // Pick latest reading per box
+        Map<String, SensorReading> latest = new LinkedHashMap<>();
+
+        for (SensorReading r : all) {
             if (r.getBoxId() == null) continue;
-            latestPerBox.putIfAbsent(r.getBoxId(), r); // only first (latest)
+            latest.putIfAbsent(r.getBoxId(), r); // first = latest because sorted desc
         }
 
-        // 3) Convert to DTO list
-        return latestPerBox.values()
+        // Convert to DTO
+        return latest.values()
                 .stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    private BoxLatestReadingDto mapToDto(SensorReading reading) {
+    // -------------------------------------------------
+    // 2) Latest reading for ONE box
+    // -------------------------------------------------
+    public BoxLatestReadingDto getLatestForBox(String boxId) {
+
+        // fetch latest 1 reading for box
+        Optional<SensorReading> readingOpt =
+                sensorReadingRepository.findTopByBoxIdOrderByTimestampDesc(boxId);
+
+        return readingOpt.map(this::mapToDto)
+                .orElse(null); // frontend handles empty result
+    }
+
+    // -------------------------------------------------
+    // Converter
+    // -------------------------------------------------
+    private BoxLatestReadingDto mapToDto(SensorReading r) {
+
         BoxLatestReadingDto dto = new BoxLatestReadingDto();
 
-        dto.setBoxId(reading.getBoxId());
+        dto.setBoxId(r.getBoxId());
 
-        if (reading.getBatch() != null) {
-            dto.setBatchCode(reading.getBatch().getBatchCode());
+        if (r.getBatch() != null) {
+            dto.setBatchCode(r.getBatch().getBatchCode());
         }
 
-        dto.setTemperature(reading.getTemperatureC());
-        dto.setHumidity(reading.getHumidityPercent());
+        dto.setTemperature(r.getTemperatureC());
+        dto.setHumidity(r.getHumidityPercent());
 
-        dto.setLatitude(reading.getGpsLat());
-        dto.setLongitude(reading.getGpsLon());
+        dto.setLatitude(r.getGpsLat());
+        dto.setLongitude(r.getGpsLon());
 
-        // Real reverse geocoding
-        String location = locationService.getLocationLabel(
-                reading.getGpsLat(),
-                reading.getGpsLon()
+        // Reverse Geocoding
+        String loc = locationService.getLocationLabel(
+                r.getGpsLat(),
+                r.getGpsLon()
         );
-        dto.setLocationName(location);
+        dto.setLocationName(loc);
 
-        dto.setLastUpdatedAt(reading.getTimestamp());
+        dto.setLastUpdatedAt(r.getTimestamp());
 
-        long openAlertCount = alertRepository.countByBoxId(reading.getBoxId());
-        dto.setHasOpenAlerts(openAlertCount > 0);
+        // Count open alerts
+        long openAlerts = alertRepository.countByBoxId(r.getBoxId());
+        dto.setHasOpenAlerts(openAlerts > 0);
 
-        // Peltier state
-        String peltier = locationService.getLatestPeltierState(reading.getBoxId());
-        dto.setPeltierState(peltier);
+        // Latest peltier state
+        String peltierState = locationService.getLatestPeltierState(r.getBoxId());
+        dto.setPeltierState(peltierState);
 
         return dto;
     }

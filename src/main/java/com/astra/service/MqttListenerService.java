@@ -1,10 +1,11 @@
 package com.astra.service;
 
 import com.astra.api.dto.TelemetryMessageDto;
+import com.astra.model.Alert;
+import com.astra.model.DeviceState;
 import com.astra.model.TelemetrySnapshot;
 import com.astra.repository.DeviceStateRepository;
 import com.astra.repository.TelemetrySnapshotRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,8 +13,10 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
-import java.util.Arrays;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class MqttListenerService {
@@ -24,190 +27,183 @@ public class MqttListenerService {
     private final RuleEngineService ruleEngineService;
     private final TelemetryService telemetryService;
     private final GeocodeService geocodeService;
+    private final AlertService alertService;
 
-    public MqttListenerService(TelemetrySnapshotRepository repository,
-                               DeviceStateRepository deviceStateRepository,
-                               RuleEngineService ruleEngineService,
-                               TelemetryService telemetryService,
-                               GeocodeService geocodeService) {
+    private final Map<String, Long> lastSensorAlert = new ConcurrentHashMap<>();
+    private final Map<String, Long> gpsLastUpdate = new ConcurrentHashMap<>();
+
+    public MqttListenerService(
+            TelemetrySnapshotRepository repository,
+            DeviceStateRepository deviceStateRepository,
+            RuleEngineService ruleEngineService,
+            TelemetryService telemetryService,
+            GeocodeService geocodeService,
+            AlertService alertService
+    ) {
         this.repository = repository;
         this.deviceStateRepository = deviceStateRepository;
         this.ruleEngineService = ruleEngineService;
         this.telemetryService = telemetryService;
         this.geocodeService = geocodeService;
+        this.alertService = alertService;
 
-        // ---- ObjectMapper leniency settings ----
         this.objectMapper = new ObjectMapper();
         this.objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
         this.objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-        try {
-            this.objectMapper.configure(JsonParser.Feature.ALLOW_TRAILING_COMMA, true);
-        } catch (NoSuchFieldError | Exception ignored) {
-            // fallback ignored
-        }
-
-        System.out.println("MqttListenerService initialized (subscription handled by MqttConfig).");
     }
 
-    /**
-     * Called by MqttConfig when a message arrives.
-     * Steps: parse → normalize → save → run rules → update GPS → batch/sensor/alert.
-     */
+    // =====================================================================
+    // MQTT ENTRY POINT
+    // =====================================================================
     public void processMessage(String topic, byte[] payloadBytes) {
+
         String payload = new String(payloadBytes, StandardCharsets.UTF_8);
-        System.out.println("📩 Received message on topic: " + topic);
-        System.out.println("Raw payload string: " + payload);
-        System.out.println("Raw payload bytes: " + Arrays.toString(payloadBytes));
+        System.out.println("📩 MQTT topic=" + topic + " payload=" + payload);
 
+        // --- tele/<deviceId> path ---
+        if (topic.startsWith("tele/")) {
+            String deviceId = topic.substring(5);
+            saveTelemetry(deviceId, payload);
+
+            double temp = extractTemp(payload);
+            ruleEngineService.evaluate(deviceId, temp);
+
+            return;
+        }
+
+        // --- boxes/<boxId>/telemetry path ---
         try {
-            // Normalize incoming payload to valid JSON string
-            String json = com.astra.util.PayloadSanitizer.ensureValidJson(payload);
-            System.out.println("Normalized JSON: " + json);
+            JsonNode node = objectMapper.readTree(payload);
 
-            JsonNode node = objectMapper.readTree(json);
-
-            // Prefer boxId from JSON; fallback to topic segment (e.g., boxes/<id>/telemetry)
-            String boxId = node.hasNonNull("boxId")
+            String boxId = node.has("boxId")
                     ? node.get("boxId").asText()
                     : extractBoxId(topic);
 
-            // === New Batch/Sensor/Alert Pipeline ===
-            try {
-                processForBatchSensorAlert(node, boxId);
-            } catch (Exception e) {
-                System.err.println("⚠ Failed Batch/Sensor/Alert pipeline: " + e.getMessage());
-            }
+            // Sensor/tamper/weight alerts
+            processForBatchSensorAlert(node, boxId);
 
-            // Save snapshot (payload stored as canonical JSON)
+            // Save snapshot
             TelemetrySnapshot snapshot = new TelemetrySnapshot();
             snapshot.setId(UUID.randomUUID().toString());
             snapshot.setBoxId(boxId);
-
-            // prefer timestamp from payload if present
-            if (node.hasNonNull("timestamp")) {
-                try {
-                    snapshot.setTimestamp(Instant.parse(node.get("timestamp").asText()));
-                } catch (Exception e) {
-                    snapshot.setTimestamp(Instant.now());
-                }
-            } else {
-                snapshot.setTimestamp(Instant.now());
-            }
-
-            snapshot.setPayload(objectMapper.writeValueAsString(node));
+            snapshot.setTimestamp(Instant.now());
+            snapshot.setPayload(node.toString());
             repository.save(snapshot);
 
-            System.out.println("✅ Saved telemetry to DB for box: " + boxId);
-
-            // ---- GPS handling: update device_state.last_location if gps object present ----
-            JsonNode gpsNode = node.path("gps");
-            if (!gpsNode.isMissingNode() && !gpsNode.isNull()) {
-                try {
-                    String gpsJson = objectMapper.writeValueAsString(gpsNode);
-                    deviceStateRepository.updateLastLocation(boxId, gpsJson);
-                    System.out.println("📍 Updated last_location for " + boxId + " → " + gpsJson);
-                } catch (Exception e) {
-                    System.err.println("⚠ Failed to update last_location for " + boxId + ": " + e.getMessage());
-                }
+            // GPS update
+            JsonNode gps = node.path("gps");
+            if (!gps.isMissingNode() && !gps.isNull()) {
+                String gpsJson = objectMapper.writeValueAsString(gps);
+                deviceStateRepository.updateLastLocation(boxId, gpsJson);
+                gpsLastUpdate.put(boxId, System.currentTimeMillis());
             }
 
-            // ---- Run rules (only if temperature exists) ----
-            if (node.hasNonNull("temp")) {
-                double temp = safeDouble(node.get("temp"));
-                try {
-                    ruleEngineService.evaluate(boxId, temp);
-                } catch (Exception re) {
-                    System.err.println("⚠ RuleEngine error for " + boxId + ": " + re.getMessage());
-                }
-            } else {
-                System.out.println("ℹ No 'temp' in payload; skipping rules for " + boxId);
+            // Rule engine on TEMP
+            if (node.has("temp")) {
+                double temp = node.get("temp").asDouble();
+                ruleEngineService.evaluate(boxId, temp);
             }
 
-        } catch (JsonProcessingException jpe) {
-            System.err.println("❌ Failed to parse/normalize payload — payload was: " + payload);
-            jpe.printStackTrace();
-        } catch (Exception e) {
-            System.err.println("❌ Failed to save telemetry — DB or unexpected error:");
-            e.printStackTrace();
+        } catch (Exception ex) {
+            System.err.println("❌ MQTT parse failed: " + ex.getMessage());
         }
     }
 
-    private double safeDouble(JsonNode n) {
+    // =====================================================================
+    // SAVE TELEMETRY FOR tele/<id>
+    // =====================================================================
+    private void saveTelemetry(String deviceId, String json) {
         try {
-            return n.asDouble();
+            JsonNode obj = objectMapper.readTree(json);
+
+            DeviceState st = deviceStateRepository.findById(deviceId)
+                    .orElseGet(() -> {
+                        DeviceState d = new DeviceState();
+                        d.setDeviceId(deviceId);
+                        return d;
+                    });
+
+            if (obj.has("peltier")) st.setPeltier(obj.get("peltier").asText());
+            if (obj.has("fan")) st.setFan(obj.get("fan").asText());
+            if (obj.has("temp")) st.setTargetTemp(obj.get("temp").asDouble());
+            if (obj.has("gps")) st.setLastLocation(obj.get("gps").toString());
+
+            st.setUpdatedAt(LocalDateTime.now());
+            deviceStateRepository.save(st);
+
         } catch (Exception e) {
-            return Double.NaN;
+            System.out.println("❌ saveTelemetry FAILED: " + e.getMessage());
+        }
+    }
+
+    private double extractTemp(String json) {
+        try {
+            JsonNode obj = objectMapper.readTree(json);
+            return obj.has("temp") ? obj.get("temp").asDouble() : -999;
+        } catch (Exception e) {
+            return -999;
         }
     }
 
     private String extractBoxId(String topic) {
-        // Expecting something like "boxes/<id>/telemetry"
-        if (topic == null || topic.isEmpty()) return "unknown";
-        String[] parts = topic.split("/");
-        return parts.length > 1 ? parts[1] : "unknown";
+        String[] p = topic.split("/");
+        return p.length > 1 ? p[1] : "unknown";
     }
 
-    // New helper for Batch/Sensor/Alert
+    // =====================================================================
+    // SENSOR MISSING + WEIGHT LOW + TAMPER ALERTS
+    // =====================================================================
     private void processForBatchSensorAlert(JsonNode node, String boxId) {
-        String batchCode = node.hasNonNull("batchCode")
-                ? node.get("batchCode").asText()
-                : "BATCH-" + boxId;
 
-        Double temperature = node.hasNonNull("temp") ? node.get("temp").asDouble() : null;
-        Double humidity = node.hasNonNull("humidity") ? node.get("humidity").asDouble() : null;
-        Double voc = node.hasNonNull("voc") ? node.get("voc").asDouble() : null;
-        Double weight = node.hasNonNull("weight") ? node.get("weight").asDouble() : null;
+        Double temp = node.has("temp") ? node.get("temp").asDouble() : null;
+        Double hum = node.has("humidity") ? node.get("humidity").asDouble() : null;
+        Double weight = node.has("weight") ? node.get("weight").asDouble() : null;
+        Boolean tamper = node.has("tamper") ? node.get("tamper").asBoolean() : null;
 
-        Double gpsLat = node.path("gps").path("lat").isNumber()
-                ? node.path("gps").path("lat").asDouble()
-                : null;
-        Double gpsLon = node.path("gps").path("lon").isNumber()
-                ? node.path("gps").path("lon").asDouble()
-                : null;
+        long now = System.currentTimeMillis();
 
-        Boolean tamperFlag = node.hasNonNull("tamper") && node.get("tamper").asBoolean();
-
-        Long ts = node.hasNonNull("timestamp")
-                ? Instant.parse(node.get("timestamp").asText()).toEpochMilli()
-                : Instant.now().toEpochMilli();
-
-        TelemetryMessageDto dto = new TelemetryMessageDto();
-        dto.setBoxId(boxId);
-        dto.setBatchCode(batchCode);
-        dto.setTemperatureC(temperature);
-        dto.setHumidityPercent(humidity);
-        dto.setVocPpm(voc);
-        dto.setWeightKg(weight);
-        dto.setGpsLat(gpsLat);
-        dto.setGpsLon(gpsLon);
-        dto.setTamperFlag(tamperFlag);
-        dto.setTimestampEpochMillis(ts);
-
-        // === GEOCODE: best-effort attach human-readable address if GPS present ===
-        if (dto.getGpsLat() != null && dto.getGpsLon() != null) {
-            try {
-                double lat = dto.getGpsLat();
-                double lon = dto.getGpsLon();
-                String addr = geocodeService.reverse(lat, lon);
-                if (addr != null && !addr.isBlank()) {
-                    try {
-                        // prefer direct setter
-                        dto.setLocationText(addr);
-                    } catch (NoSuchMethodError | AbstractMethodError | Exception ignore) {
-                        // if setter doesn't exist, attempt reflective setter (safe)
-                        try {
-                            dto.getClass().getMethod("setLocationText", String.class).invoke(dto, addr);
-                        } catch (NoSuchMethodException nm) {
-                            // no setter available — ignore, telemetry still processed
-                        }
-                    }
-                }
-            } catch (Throwable ge) {
-                System.err.println("⚠ Geocode failed: " + ge.getMessage());
+        // TEMP MISSING
+        if (temp == null) {
+            long last = lastSensorAlert.getOrDefault(boxId + "_TEMP", 0L);
+            if (now - last > 60000) {
+                alertService.createFromTemplate(
+                        "SENSOR_TEMP_MISSING",
+                        Map.of("boxId", boxId),
+                        null, boxId, boxId, Alert.Status.OPEN
+                );
+                lastSensorAlert.put(boxId + "_TEMP", now);
             }
         }
 
-        // HAND OFF to telemetryService (same as before)
-        telemetryService.handleTelemetry(dto);
+        // HUMIDITY MISSING
+        if (hum == null) {
+            long last = lastSensorAlert.getOrDefault(boxId + "_HUM", 0L);
+            if (now - last > 60000) {
+                alertService.createFromTemplate(
+                        "SENSOR_HUMID_MISSING",
+                        Map.of("boxId", boxId),
+                        null, boxId, boxId, Alert.Status.OPEN
+                );
+                lastSensorAlert.put(boxId + "_HUM", now);
+            }
+        }
+
+        // WEIGHT LOW (<2 kg)
+        if (weight != null && weight < 2.0) {
+            alertService.createFromTemplate(
+                    "WEIGHT_LOW",
+                    Map.of("boxId", boxId, "value", String.format("%.1f", weight)),
+                    null, boxId, boxId, Alert.Status.OPEN
+            );
+        }
+
+        // TAMPER DETECTED
+        if (tamper != null && tamper) {
+            alertService.createFromTemplate(
+                    "TAMPER_DETECTED",
+                    Map.of("boxId", boxId),
+                    null, boxId, boxId, Alert.Status.OPEN
+            );
+        }
     }
 }
