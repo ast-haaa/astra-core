@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 public interface SensorReadingRepository extends JpaRepository<SensorReading, Long> {
 
@@ -16,10 +17,11 @@ public interface SensorReadingRepository extends JpaRepository<SensorReading, Lo
             Instant from,
             Instant to
     );
-     List<SensorReading> findAllByOrderByTimestampDesc();
 
-    // Optional: single box ke latest readings (future use)
+    List<SensorReading> findAllByOrderByTimestampDesc();
+
     List<SensorReading> findByBoxIdOrderByTimestampDesc(String boxId);
 
-    
+    // 👉 REQUIRED for getLatestForBox()
+    Optional<SensorReading> findTopByBoxIdOrderByTimestampDesc(String boxId);
 }

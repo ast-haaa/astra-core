@@ -10,6 +10,18 @@ public class DeviceState {
     @Id
     @Column(name = "device_id", nullable = false, length = 64)
     private String deviceId;
+    
+    @Column(name = "peltier_status")
+private String peltierStatus;
+
+public String getPeltierStatus() { return peltierStatus; }
+public void setPeltierStatus(String s) { this.peltierStatus = s; }
+
+@Column(name = "last_location", columnDefinition = "JSON")
+private String lastLocation;
+
+public String getLastLocation() { return lastLocation; }
+public void setLastLocation(String lastLocation) { this.lastLocation = lastLocation; }
 
     @Column(name = "peltier", length = 8)
     private String peltier;          // "ON" | "OFF"

@@ -8,12 +8,8 @@ import java.time.LocalDateTime;
 public class Event {
 
     @Id
-    @Column(length = 36)
-    private String id;
-
-        @Column(name = "client_event_id", length = 128)
-    private String clientEventId;
-
+    @Column(name = "id")
+    private String id;   // UUID string
 
     @Column(name = "box_id", nullable = false)
     private String boxId;
@@ -21,21 +17,22 @@ public class Event {
     @Column(name = "batch_code")
     private String batchCode;
 
-    @Column(name = "type", nullable = false)
-    private String type;  // peltier_on, peltier_off, etc.
+    @Column(name = "client_event_id")
+    private String clientEventId;
 
-    @Column(name = "payload_json", columnDefinition = "json")
+    @Column(name = "type", nullable = false)
+    private String type;
+
+    @Column(name = "payload_json", columnDefinition = "text")
     private String payloadJson;
 
     @Column(name = "actor")
-    private String actor;  // auto or user:<id>
+    private String actor;
 
-    @Column(name = "ts")
+    @Column(name = "ts", nullable = false)
     private LocalDateTime ts;
 
-    // ---- Getters & Setters ----
-        public String getClientEventId() { return clientEventId; }
-    public void setClientEventId(String clientEventId) { this.clientEventId = clientEventId; }
+    // ===== GETTERS & SETTERS =====
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -45,6 +42,9 @@ public class Event {
 
     public String getBatchCode() { return batchCode; }
     public void setBatchCode(String batchCode) { this.batchCode = batchCode; }
+
+    public String getClientEventId() { return clientEventId; }
+    public void setClientEventId(String clientEventId) { this.clientEventId = clientEventId; }
 
     public String getType() { return type; }
     public void setType(String type) { this.type = type; }
