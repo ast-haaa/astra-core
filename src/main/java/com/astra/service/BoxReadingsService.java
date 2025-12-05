@@ -17,24 +17,23 @@ public class BoxReadingsService {
     private final SensorReadingRepository sensorReadingRepository;
     private final AlertRepository alertRepository;
     private final LocationService locationService;
+    // ❌ REMOVED self-reference that caused circular dependency
+    // private final BoxReadingsService boxReadingsService;
 
     // -------------------------------------------------
     // 1) Latest readings for ALL boxes
     // -------------------------------------------------
     public List<BoxLatestReadingDto> getLatestReadings() {
 
-        // Fetch all readings sorted by newest first
         List<SensorReading> all = sensorReadingRepository.findAllByOrderByTimestampDesc();
 
-        // Pick latest reading per box
         Map<String, SensorReading> latest = new LinkedHashMap<>();
 
         for (SensorReading r : all) {
             if (r.getBoxId() == null) continue;
-            latest.putIfAbsent(r.getBoxId(), r); // first = latest because sorted desc
+            latest.putIfAbsent(r.getBoxId(), r);
         }
 
-        // Convert to DTO
         return latest.values()
                 .stream()
                 .map(this::mapToDto)
@@ -46,12 +45,10 @@ public class BoxReadingsService {
     // -------------------------------------------------
     public BoxLatestReadingDto getLatestForBox(String boxId) {
 
-        // fetch latest 1 reading for box
         Optional<SensorReading> readingOpt =
                 sensorReadingRepository.findTopByBoxIdOrderByTimestampDesc(boxId);
 
-        return readingOpt.map(this::mapToDto)
-                .orElse(null); // frontend handles empty result
+        return readingOpt.map(this::mapToDto).orElse(null);
     }
 
     // -------------------------------------------------
@@ -73,7 +70,6 @@ public class BoxReadingsService {
         dto.setLatitude(r.getGpsLat());
         dto.setLongitude(r.getGpsLon());
 
-        // Reverse Geocoding
         String loc = locationService.getLocationLabel(
                 r.getGpsLat(),
                 r.getGpsLon()
@@ -82,14 +78,49 @@ public class BoxReadingsService {
 
         dto.setLastUpdatedAt(r.getTimestamp());
 
-        // Count open alerts
         long openAlerts = alertRepository.countByBoxId(r.getBoxId());
         dto.setHasOpenAlerts(openAlerts > 0);
 
-        // Latest peltier state
         String peltierState = locationService.getLatestPeltierState(r.getBoxId());
         dto.setPeltierState(peltierState);
 
         return dto;
     }
+
+    // ---------------------------------------------------------
+    // NEW: Cold Chain Score (0–100)
+    // ---------------------------------------------------------
+    public int calculateColdChainScore(String boxId) {
+
+        List<SensorReading> readings =
+                sensorReadingRepository.findTop50ByBoxIdOrderByTimestampDesc(boxId);
+
+        if (readings == null || readings.isEmpty()) {
+            return 80;
+        }
+
+        int score = 100;
+
+        for (SensorReading r : readings) {
+
+            Double t = r.getTemperatureC();
+            Double h = r.getHumidityPercent();
+
+            if (t != null) {
+                if (t < 15 || t > 35) score -= 8;
+                else if (t < 18 || t > 28) score -= 4;
+            }
+
+            if (h != null) {
+                if (h < 30 || h > 80) score -= 8;
+                else if (h < 40 || h > 65) score -= 4;
+            }
+        }
+
+        if (score < 0) score = 0;
+        if (score > 100) score = 100;
+
+        return score;
+    }
+
 }

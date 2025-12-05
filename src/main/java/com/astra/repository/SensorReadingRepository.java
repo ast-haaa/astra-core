@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface SensorReadingRepository extends JpaRepository<SensorReading, Long> {
 
     List<SensorReading> findByBatchOrderByTimestampDesc(Batch batch);
+List<SensorReading> findTop50ByBoxIdOrderByTimestampDesc(String boxId);
 
     List<SensorReading> findByBoxIdAndTimestampBetweenOrderByTimestampAsc(
             String boxId,
