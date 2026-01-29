@@ -8,21 +8,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/farmer/profile")
+@RequestMapping("/api/lab/profile")
 @RequiredArgsConstructor
-public class FarmerProfileController {
+public class LabTesterProfileController {
 
     private final UserRepository userRepo;
 
-    // TEMP demo farmer (jab tak real login nahi hai)
-    private static final Long DEMO_FARMER_ID = 1L;
+    // TEMP demo lab tester (jab tak real login nahi hai)
+    private static final Long DEMO_LAB_ID = 2L;
 
     // ---------- 1) Get my profile ----------
     @GetMapping
     public ResponseEntity<User> getMyProfile() {
 
-        User user = userRepo.findById(DEMO_FARMER_ID)
-                .orElseThrow(() -> new RuntimeException("Farmer not found"));
+        User user = userRepo.findById(DEMO_LAB_ID)
+                .orElseThrow(() -> new RuntimeException("Lab tester not found"));
 
         return ResponseEntity.ok(user);
     }
@@ -32,8 +32,8 @@ public class FarmerProfileController {
     public ResponseEntity<User> updateMyProfile(
             @RequestBody FarmerProfileRequest req
     ) {
-        User user = userRepo.findById(DEMO_FARMER_ID)
-                .orElseThrow(() -> new RuntimeException("Farmer not found"));
+        User user = userRepo.findById(DEMO_LAB_ID)
+                .orElseThrow(() -> new RuntimeException("Lab tester not found"));
 
         user.setName(req.getName());
         user.setMobile(req.getMobile());
@@ -43,6 +43,7 @@ public class FarmerProfileController {
         user.setVillage(req.getVillage());
         user.setFarmName(req.getFarmName());
         user.setLangPref(req.getLangPref());
+        user.setRole("LAB_TESTER");
 
         return ResponseEntity.ok(userRepo.save(user));
     }

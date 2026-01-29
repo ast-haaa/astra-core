@@ -6,9 +6,14 @@ import java.time.Instant;
 @Entity
 @Table(name = "boxes")
 public class Box {
+
     @Id
     @Column(name = "box_id", length = 100)
-    private String boxId;   // device id (use device-provided id)
+    private String boxId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "farmer_id")
+    private User farmer;
 
     @Column(nullable = true)
     private String name;
@@ -34,9 +39,11 @@ public class Box {
         this.createdAt = Instant.now();
     }
 
-    // getters / setters
     public String getBoxId() { return boxId; }
     public void setBoxId(String boxId) { this.boxId = boxId; }
+
+    public User getFarmer() { return farmer; }
+    public void setFarmer(User farmer) { this.farmer = farmer; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

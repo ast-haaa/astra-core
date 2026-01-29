@@ -20,21 +20,31 @@ public class JourneyEventDto {
     // -------------------------------
 
     public static JourneyEventDto fromAlert(Object alert) {
-        String ts = extractTimestamp(alert);
+    String ts = extractTimestamp(alert);
 
-        String msg =
-                extractFirstNonNullString(alert,
-                        "getMessage", "getAlertMessage", "getText", "getMsg", "message");
+    String msg =
+            extractFirstNonNullString(alert,
+                    "getMessage", "getAlertMessage", "getText", "getMsg", "message");
 
-        String status =
-                extractFirstNonNullString(alert,
-                        "getStatus", "getAlertStatus", "getState");
+    String status =
+            extractFirstNonNullString(alert,
+                    "getStatus", "getAlertStatus", "getState");
 
-        if (msg == null || msg.isBlank()) msg = "Alert raised";
-        if (status == null || status.isBlank()) status = "OPEN";
+    if (msg == null || msg.isBlank()) msg = "Alert raised";
+    if (status == null || status.isBlank()) status = "OPEN";
 
-        return new JourneyEventDto(ts, "ALERT", msg, status);
-    }
+    // 🔁 Replace placeholders
+    try {
+        String boxId = extractFirstNonNullString(alert, "getBoxId", "getDeviceId");
+        if (boxId != null && !boxId.isBlank()) {
+            msg = msg.replace("{boxId}", boxId);
+        }
+        msg = msg.replace("{minutes}", "5");
+    } catch (Exception ignored) {}
+
+    return new JourneyEventDto(ts, "ALERT", msg, status);
+}
+
 
     public static JourneyEventDto fromAction(Object action) {
         String ts = extractTimestamp(action);

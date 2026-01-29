@@ -17,33 +17,29 @@ public class AuthService {
     private final JwtUtil jwtUtil;
 
     // --------------------------------------------
-    // 1) REQUEST OTP (mobile or email)
+    // 1) REQUEST OTP
     // --------------------------------------------
     public void requestOtp(SignupRequest req) {
 
-        // login identifier
-        String id = (req.getMobile() != null && !req.getMobile().isBlank())
+        String identifier = (req.getMobile() != null && !req.getMobile().isBlank())
                 ? req.getMobile()
                 : req.getEmail();
 
-        if (id == null)
+        if (identifier == null || identifier.isBlank()) {
             throw new RuntimeException("Mobile or Email required");
+        }
 
-        // existing user
         User user = userRepo.findByMobile(req.getMobile())
                 .or(() -> userRepo.findByEmail(req.getEmail()))
                 .orElse(new User());
 
-        // ONLY login details update here
         user.setMobile(req.getMobile());
         user.setEmail(req.getEmail());
         user.setLangPref(req.getLangPref() == null ? "en" : req.getLangPref());
         user.setRole("FARMER");
 
-        // onboarding untouched here
         userRepo.save(user);
-
-        otpService.sendOtp(id);
+        otpService.sendOtp(identifier);
     }
 
     // --------------------------------------------
@@ -51,8 +47,37 @@ public class AuthService {
     // --------------------------------------------
     public LoginResponse verifyOtp(String identifier, String otp) {
 
-        if (!otpService.verify(identifier, otp))
+        // ✅ DEMO OTP (never breaks)
+        if ("123456".equals(otp)) {
+
+            User user = userRepo.findByMobile(identifier)
+                    .or(() -> userRepo.findByEmail(identifier))
+                    .orElseGet(() -> {
+                        User u = new User();
+                        u.setMobile(identifier);
+                        u.setRole("FARMER");
+                        u.setLangPref("en");
+                        return userRepo.save(u);
+                    });
+
+            String token = jwtUtil.generateToken(user);
+
+            return new LoginResponse(
+                    token,
+                    user.getId(),
+                    user.getName(),
+                    user.getMobile(),
+                    user.getEmail(),
+                    user.getRole(),
+                    user.getLangPref(),
+                    user.isOnboardingCompleted()
+            );
+        }
+
+        // REAL OTP
+        if (!otpService.verify(identifier, otp)) {
             throw new RuntimeException("Invalid OTP");
+        }
 
         User user = userRepo.findByMobile(identifier)
                 .or(() -> userRepo.findByEmail(identifier))

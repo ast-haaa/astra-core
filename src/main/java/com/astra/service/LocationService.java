@@ -26,7 +26,7 @@ public class LocationService {
 
     public String getLocationLabel(Double lat, Double lon) {
         try {
-            if (lat == null || lon == null) return "Unknown";
+            if (lat == null || lon == null) return "Location Unknown";
 
             String url = "https://api.opencagedata.com/geocode/v1/json?q="
                     + URLEncoder.encode(lat + "," + lon, StandardCharsets.UTF_8)
@@ -35,10 +35,10 @@ public class LocationService {
             Map response = restTemplate.getForObject(url, Map.class);
 
             if (response == null || !response.containsKey("results"))
-                return "Unknown";
+                return "Location Unknown";
 
             var results = (java.util.List<Map>) response.get("results");
-            if (results.isEmpty()) return "Unknown";
+            if (results.isEmpty()) return "Location Unknown";
 
             Map first = results.get(0);
             Map components = (Map) first.get("components");
@@ -49,21 +49,18 @@ public class LocationService {
             if (components.get("state") != null) return components.get("state").toString();
             if (components.get("country") != null) return components.get("country").toString();
 
-            return "Unknown";
+            return "Location Unknown";
 
         } catch (Exception e) {
-            return "Unknown";
+            return "Location Unknown";
         }
     }
 
-    // ------------------------------
-    // NEW: Peltier state fetch
-    // ------------------------------
     public String getLatestPeltierState(String boxId) {
         try {
             return eventRepository.findLatestPeltierEvent(boxId)
                     .map(e -> e.getType())
-                    .map(t -> 
+                    .map(t ->
                             t.equalsIgnoreCase("peltier_on") ? "ON" :
                             t.equalsIgnoreCase("peltier_off") ? "OFF" : "UNKNOWN"
                     )

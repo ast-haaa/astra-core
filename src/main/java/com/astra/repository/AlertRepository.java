@@ -9,6 +9,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface AlertRepository extends JpaRepository<Alert, Long> {
+    
+    boolean existsByBoxIdAndCreatedAtAfter(String boxId, LocalDateTime time);
 
     List<Alert> findByBatchOrderByCreatedAtDesc(Batch batch);
 
@@ -16,8 +18,9 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
 
     List<Alert> findByBoxIdIn(List<String> boxIds);
 
-    // ❌ WRONG: findByBatchCode
-    // FIXED:
+    // ✅ FIXED farmer relation path
+    List<Alert> findByBatch_Farmer_IdOrderByCreatedAtDesc(Long farmerId);
+
     List<Alert> findByBatch_BatchCode(String batchCode);
 
     List<Alert> findByAssignedToAndStatusIn(String assignedTo, Collection<Alert.Status> statuses);
@@ -28,6 +31,10 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
             boolean escalated
     );
 
-    // For dashboard
+    long count();
+
+    // ✅ FIXED count method
+    long countByBatch_Farmer_Id(Long farmerId);
+
     long countByBoxId(String boxId);
 }

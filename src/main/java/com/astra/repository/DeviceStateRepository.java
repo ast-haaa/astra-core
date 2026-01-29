@@ -1,5 +1,6 @@
 package com.astra.repository;
 
+import java.util.Optional;
 import com.astra.model.DeviceState;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -22,4 +23,6 @@ public interface DeviceStateRepository extends JpaRepository<DeviceState, String
     //  CORRECT query
     @Query("SELECT d.lastLocation FROM DeviceState d WHERE d.deviceId = :deviceId")
     String findLastLocation(@Param("deviceId") String deviceId);
+    Optional<DeviceState> findByDeviceId(String deviceId);
+
 }

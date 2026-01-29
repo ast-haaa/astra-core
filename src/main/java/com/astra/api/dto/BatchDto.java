@@ -9,21 +9,26 @@ public class BatchDto {
     private String herbName;
     private String farmerName;
     private String originLocation;
-    private String status; // keep String for DTO / UI convenience
+    private String status;
 
     public static BatchDto from(Batch b) {
-        BatchDto d = new BatchDto();
-        d.setBatchCode(b.getBatchCode());
-        d.setHerbName(b.getHerbName());
-        d.setFarmerName(b.getFarmerName());
-        d.setOriginLocation(b.getOriginLocation());
-        // Convert enum to String safely
-        try {
-            Object st = b.getStatus();
-            d.setStatus(st == null ? null : st.toString()); // handles enum or string
-        } catch (Throwable t) {
-            d.setStatus(null);
-        }
-        return d;
+    BatchDto d = new BatchDto();
+
+    d.setBatchCode(b.getBatchCode());
+    d.setHerbName(b.getHerbName());
+
+    // SAFE: farmer relation को touch नहीं करेंगे
+    d.setFarmerName(b.getFarmerName());
+
+    d.setOriginLocation(b.getOriginLocation());
+
+    if (b.getStatus() != null) {
+        d.setStatus(b.getStatus().toString());
+    } else {
+        d.setStatus(null);
     }
+
+    return d;
+}
+
 }

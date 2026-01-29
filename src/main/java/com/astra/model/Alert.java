@@ -14,9 +14,8 @@ public class Alert {
 
     // ---- RELATIONS ----
     @ManyToOne(fetch = FetchType.EAGER)
-@JoinColumn(name = "batch_id")
-private Batch batch;
-
+    @JoinColumn(name = "batch_id")
+    private Batch batch;
 
     @Column(name = "box_id")
     private String boxId;
@@ -46,22 +45,23 @@ private Batch batch;
 
     // ---- STATUS ----
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private Status status = Status.OPEN;
 
     @Column(name = "action_taken_by")
     private String actionTakenBy;
 
-    // ---- NEW ACTION FIELDS ----
+    // ---- ACTION FIELDS ----
     @Column(name = "action_type")
     private String actionType;
 
-    @Column(name = "action_params", columnDefinition = "text")
+    @Column(name = "action_params", columnDefinition = "TEXT")
     private String actionParams;
 
     @Column(name = "action_taken_at")
     private LocalDateTime actionTakenAt;
 
-    // ---- ASSIGNMENT / DEADLINE ----
+    // ---- ASSIGNMENT ----
     @Column(name = "assigned_to")
     private String assignedTo;
 
@@ -71,14 +71,12 @@ private Batch batch;
     @Column(name = "acknowledged_at")
     private LocalDateTime acknowledgedAt;
 
-    // ---- TEMPLATE / PARAMS ----
-@Column(name = "template_code")
-private String templateCode;
+    // ---- TEMPLATE ----
+    @Column(name = "template_code")
+    private String templateCode;
 
-@Column(columnDefinition = "JSON")
-
-private String params; // JSON string e.g. {"value":"42","batchId":"B21","threshold":"40"}
-
+    @Column(name = "params", columnDefinition = "TEXT")
+    private String params;
 
     // ---- ESCALATION ----
     @Column(name = "escalated")
@@ -91,26 +89,22 @@ private String params; // JSON string e.g. {"value":"42","batchId":"B21","thresh
     @Column(name = "created_at")
     private Instant createdAt = Instant.now();
 
-    @Column(name = "updated_at", nullable = true)
+    @Column(name = "updated_at")
     private Instant updatedAt;
-
 
     @PrePersist
     public void prePersist() {
-    if (createdAt == null) createdAt = Instant.now();
-    if (updatedAt == null) updatedAt = Instant.now();
-}
+        if (createdAt == null) createdAt = Instant.now();
+        if (updatedAt == null) updatedAt = Instant.now();
+    }
+
     @PreUpdate
     public void preUpdate() {
         updatedAt = Instant.now();
-        
     }
 
-
     // ========= GETTERS & SETTERS ===========
-
     public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
     public Batch getBatch() { return batch; }
     public void setBatch(Batch batch) { this.batch = batch; }
@@ -170,16 +164,13 @@ private String params; // JSON string e.g. {"value":"42","batchId":"B21","thresh
     public void setEscalationMarkedAt(LocalDateTime escalationMarkedAt) { this.escalationMarkedAt = escalationMarkedAt; }
 
     public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
-
     public Instant getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 
     public String getTemplateCode() { return templateCode; }
-public void setTemplateCode(String templateCode) { this.templateCode = templateCode; }
+    public void setTemplateCode(String templateCode) { this.templateCode = templateCode; }
 
-public String getParams() { return params; }
-public void setParams(String params) { this.params = params; }
+    public String getParams() { return params; }
+    public void setParams(String params) { this.params = params; }
 
     public enum Status {
         OPEN, ACKED, RESOLVED, IGNORED, HALTED, RECALLED, ESCALATED

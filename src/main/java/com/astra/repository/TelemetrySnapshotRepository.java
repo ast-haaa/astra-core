@@ -30,7 +30,7 @@ public interface TelemetrySnapshotRepository extends JpaRepository<TelemetrySnap
            GROUP BY t.boxId
            """)
     List<BoxSnapshotSummary> findAllGrouped();
-
+List<TelemetrySnapshot> findTop20ByOrderByTimestampDesc();
     List<TelemetrySnapshot> findTop5ByBoxIdOrderByTimestampDesc(String boxId);
 
 @Query("SELECT DISTINCT t.boxId FROM TelemetrySnapshot t")

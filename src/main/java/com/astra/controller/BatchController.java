@@ -1,47 +1,124 @@
 package com.astra.controller;
 
+import com.astra.api.dto.BatchDto;
+import com.astra.model.*;
+import com.astra.repository.*;
+import com.astra.service.BoxReadingsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// NOTE: This is a skeleton controller with comments explaining where to implement logic.
-// Implement validation, service injection and actual logic as described in the project playbook.
+import java.util.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/batch")
+@RequiredArgsConstructor
 public class BatchController {
 
-    // Inject EventService and BatchService (implement these in src/main/java/com/astra/service)
-    // private final EventService eventService;
-    //
-    // public BatchController(EventService eventService) {
-    //     this.eventService = eventService;
-    // }
+    private final BatchRepository batchRepo;
+    private final SensorReadingRepository sensorRepo;
+    private final AlertRepository alertRepo;
+    private final LabTestRepository labRepo;
+    private final EventRepository eventRepo;
+    private final BoxReadingsService boxReadingsService;
 
-    @PostMapping("/batch")
-    public ResponseEntity<?> createBatch(@RequestBody String body) {
-        // TODO: parse request body to CreateBatchDto, persist batch, return QR URL
-        return ResponseEntity.status(201)
-                .body("{\"status\":\"created\",\"note\":\"implement createBatch\"}");
-    }
+    // ✅ FULL TRACEABILITY REPORT API
+    @GetMapping("/{batchCode}/trace-report")
+    public ResponseEntity<?> getTraceReport(@PathVariable String batchCode) {
 
-    @PostMapping("/batch/{batchId}/event")
-    public ResponseEntity<?> ingestEvent(@PathVariable String batchId, @RequestBody String body) {
-        // TODO:
-        // 1. Validate payload (deviceId, eventUuid, timestamp)
-        // 2. Call eventService.ingestEvent(batchId, parsedDto)
-        // 3. Return accepted + dataHash + txId (if available)
-        return ResponseEntity.ok("{\"status\":\"accepted\",\"eventUuid\":\"TODO\",\"dataHash\":\"TODO\"}");
-    }
+        Batch batch = batchRepo.findByBatchCode(batchCode).orElse(null);
 
-    @GetMapping("/batch/{batchId}")
-    public ResponseEntity<?> getBatch(@PathVariable String batchId) {
-        // TODO: return batch metadata + events
-        return ResponseEntity.ok("{\"batchId\":\"" + batchId + "\",\"events\":[]}");
-    }
+        if (batch == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-    @GetMapping("/batch/{batchId}/verify")
-    public ResponseEntity<?> verifyBatch(@PathVariable String batchId) {
-        // TODO: call verification service that compares DB hash vs on-chain hash
-        return ResponseEntity.ok("{\"batchId\":\"" + batchId + "\",\"verification\":[]}");
+        Map<String, Object> report = new LinkedHashMap<>();
+
+        // -------------------------
+        // BASIC BATCH INFO
+        // -------------------------
+        report.put("batch", BatchDto.from(batch));
+
+        // -------------------------
+        // SHIPMENT STATUS
+        // -------------------------
+        report.put("shipmentStatus", batch.getShipmentStatus());
+
+        // -------------------------
+        // SENSOR HISTORY SUMMARY
+        // -------------------------
+        List<SensorReading> readings =
+                sensorRepo.findTop50ByBoxIdOrderByTimestampDesc(batch.getBoxId());
+
+        report.put("sensorReadingsCount", readings.size());
+
+        if (!readings.isEmpty()) {
+            SensorReading latest = readings.get(0);
+            report.put("latestTemperature", latest.getTemperatureC());
+            report.put("latestHumidity", latest.getHumidityPercent());
+            report.put("lastSensorUpdate", latest.getTimestamp());
+        }
+
+        // -------------------------
+        // ALERT HISTORY
+        // -------------------------
+        List<Alert> alerts = alertRepo.findByBatch_BatchCode(batchCode);
+        report.put("alertsCount", alerts.size());
+
+        // -------------------------
+        // LAB TEST STATUS
+        // -------------------------
+        List<LabTest> labs = labRepo.findByBatchCode(batchCode);
+        report.put("labTestsCount", labs.size());
+        report.put("labResult", batch.getLabResult());
+
+        // -------------------------
+        // DEVICE EVENTS
+        // -------------------------
+        List<Event> events = eventRepo.findByBatchCode(batchCode);
+        report.put("deviceEventsCount", events.size());
+
+        // -------------------------
+        // COLD CHAIN SCORE
+        // -------------------------
+        int coldChainScore = boxReadingsService.calculateColdChainScore(batch.getBoxId());
+        report.put("coldChainScore", coldChainScore);
+
+        // -------------------------
+        // FINAL QUALITY SCORE
+        // -------------------------
+        int qualityScore = Math.max(0, Math.min(100,
+                (int) (coldChainScore * 0.8 +
+                       (alerts.size() == 0 ? 20 : 5))
+        ));
+
+        report.put("qualityScore", qualityScore);
+
+        // -------------------------
+        // SAFETY VERDICT
+        // -------------------------
+        String verdict =
+                qualityScore >= 80 ? "SAFE" :
+                qualityScore >= 55 ? "MODERATE" :
+                "RISKY";
+
+        report.put("verdict", verdict);
+
+        // -------------------------
+        // RECALL STATUS
+        // -------------------------
+        report.put("recalled", batch.getStatus() == BatchStatus.RECALLED);
+
+        // -------------------------
+        // AUDIT TRAIL COUNTS
+        // -------------------------
+        report.put("auditTrail", Map.of(
+                "alerts", alerts.size(),
+                "sensorReadings", readings.size(),
+                "labTests", labs.size(),
+                "events", events.size()
+        ));
+
+        return ResponseEntity.ok(report);
     }
 }

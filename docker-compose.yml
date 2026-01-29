@@ -1,5 +1,5 @@
-server:
-  port: ${SERVER_PORT:8080}
+server: 
+  port: ${SERVER_PORT:-8080}
 
 spring:
   datasource:
@@ -24,3 +24,8 @@ mqtt:
 opencage:
   api-key: ea754dfa4b004a5e8571b1ac78ee3328
 
+exotel:
+  accountSid: dummy
+  apiKey: dummy
+  apiToken: dummy
+  fromNumber: dummy

@@ -6,7 +6,6 @@ import com.astra.model.Batch;
 import com.astra.model.User;
 import com.astra.repository.AlertRepository;
 import com.astra.repository.AlertTemplateRepository;
-import com.astra.repository.BatchRepository;
 import com.astra.repository.DeviceStateRepository;
 import com.astra.repository.UserRepository;
 import com.astra.util.JsonUtils;
@@ -24,25 +23,18 @@ public class AlertService {
 
     private final AlertRepository alertRepo;
     private final AlertTemplateRepository templateRepo;
-    private final BatchRepository batchRepo;
     private final UserRepository userRepo;
     private final TranslationService translationService;
     private final DeviceStateRepository deviceStateRepo;
 
-    // ----------------------------------------
-    // ⭐ NEW METHOD → GPS JSON fetch
-    // ----------------------------------------
     public String getLastLocationJson(String deviceId) {
         try {
             return deviceStateRepo.findLastLocation(deviceId);
         } catch (Exception e) {
-            return null; // fail-safe
+            return null;
         }
     }
 
-    // ----------------------------------------
-    // Build text from template
-    // ----------------------------------------
     public String buildMessage(String templateCode, Map<String, String> params) {
         var tpl = templateRepo.findByCode(templateCode)
                 .orElseThrow(() -> new RuntimeException("Template not found: " + templateCode));
@@ -57,9 +49,6 @@ public class AlertService {
         return template;
     }
 
-    // ----------------------------------------
-    // Create alert safely — never null fields
-    // ----------------------------------------
     public Alert createFromTemplate(
             String templateCode,
             Map<String, String> params,
@@ -77,53 +66,37 @@ public class AlertService {
         alert.setMessage(tpl.getTemplate());
         alert.setBatch(batch);
         alert.setBoxId(boxId);
-
-        // device_id fallback
         alert.setDeviceId(deviceId != null ? deviceId : boxId);
 
-        // ⭐ reason fallback (cannot be null)
         String reason = null;
         if (params != null) reason = params.get("reason");
+        if (reason == null || reason.isBlank()) reason = templateCode;
 
-        if (reason == null || reason.isBlank()) {
-            reason = templateCode;
-        }
         alert.setReason(reason);
-
         alert.setStatus(status != null ? status : Alert.Status.OPEN);
 
         return alertRepo.save(alert);
     }
 
-    // ----------------------------------------
-    // Alerts for Farmer
-    // ----------------------------------------
-    public List<AlertDto> getAlertsForFarmer(Long farmerId) {
+    public List<AlertDto> getAlertsForFarmer(Long farmerId, String lang) {
 
-        String lang = "en";
-        if (farmerId != null) {
+        if (lang == null || lang.isBlank()) {
             User farmer = userRepo.findById(farmerId).orElse(null);
             if (farmer != null && farmer.getLangPref() != null) {
                 lang = farmer.getLangPref();
+            } else {
+                lang = "en";
             }
         }
 
-        List<Alert> alerts = alertRepo.findAll();
+        // ✅ FIXED CALL
+List<Alert> alerts = alertRepo.findByBatch_Farmer_IdOrderByCreatedAtDesc(farmerId);
+
         final String flang = lang;
 
         return alerts.stream()
                 .map(a -> toDto(a, flang))
                 .collect(Collectors.toList());
-    }
-
-    public AlertDto getAlertById(Long alertId, Long userId) {
-
-        String lang = "en";
-
-        Alert alert = alertRepo.findById(alertId)
-                .orElseThrow(() -> new RuntimeException("Alert not found"));
-
-        return toDto(alert, lang);
     }
 
     private AlertDto toDto(Alert alert, String lang) {
@@ -145,6 +118,7 @@ public class AlertService {
         }
 
         dto.setMessage(translationService.renderAlertText(alert, lang));
+
         return dto;
     }
 
@@ -159,5 +133,17 @@ public class AlertService {
         alert.setActionTakenAt(LocalDateTime.now());
 
         alertRepo.save(alert);
+    }
+
+    public AlertDto getAlertById(Long alertId, Long farmerId, String lang) {
+
+        Alert alert = alertRepo.findById(alertId)
+                .orElseThrow(() -> new RuntimeException("Alert not found"));
+
+        if (lang == null || lang.isBlank()) {
+            lang = "en";
+        }
+
+        return toDto(alert, lang);
     }
 }

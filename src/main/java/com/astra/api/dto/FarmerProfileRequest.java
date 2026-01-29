@@ -5,12 +5,13 @@ import lombok.Data;
 @Data
 public class FarmerProfileRequest {
 
-    private String mobile;   // mandatory (identify which farmer)
-
-    // profile fields:
-    private String name;
+  private String name;
+    private String mobile;
+    private String email;
     private String state;
     private String city;
     private String village;
+    private String farmName;
+    private String langPref;
 
 }

@@ -2,21 +2,26 @@ package com.astra.controller;
 
 import com.astra.api.dto.BoxDTO;
 import com.astra.model.Box;
+import com.astra.service.BoxReadingsService;
 import com.astra.service.BoxService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/boxes")
 public class BoxController {
-    private final BoxService boxService;
 
-    public BoxController(BoxService boxService) {
+    private final BoxService boxService;
+    private final BoxReadingsService boxReadingsService;
+
+    public BoxController(BoxService boxService, BoxReadingsService boxReadingsService) {
         this.boxService = boxService;
+        this.boxReadingsService = boxReadingsService;
     }
 
     @PostMapping
@@ -31,12 +36,17 @@ public class BoxController {
 
     @GetMapping("/{id}")
     public ResponseEntity<BoxDTO> get(@PathVariable("id") String id) {
-        return boxService.findById(id).map(b -> ResponseEntity.ok(toDto(b))).orElse(ResponseEntity.notFound().build());
+        return boxService.findById(id)
+                .map(b -> ResponseEntity.ok(toDto(b)))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
     public ResponseEntity<List<BoxDTO>> list() {
-        List<BoxDTO> list = boxService.findAll().stream().map(this::toDto).collect(Collectors.toList());
+        List<BoxDTO> list = boxService.findAll()
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
 
@@ -55,6 +65,20 @@ public class BoxController {
     public ResponseEntity<Void> delete(@PathVariable("id") String id) {
         boxService.delete(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ NEW: Cold Chain Score API
+    @GetMapping("/{boxId}/cold-chain-score")
+    public ResponseEntity<Map<String, Object>> getColdChainScore(@PathVariable String boxId) {
+
+        int score = boxReadingsService.calculateColdChainScore(boxId);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "boxId", boxId,
+                        "coldChainScore", score
+                )
+        );
     }
 
     private BoxDTO toDto(Box b) {

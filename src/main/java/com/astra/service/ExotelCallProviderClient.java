@@ -3,7 +3,6 @@ package com.astra.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
-import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -11,9 +10,10 @@ import org.springframework.web.util.UriUtils;
 
 import java.nio.charset.StandardCharsets;
 
-@Service
+// @Service
 @RequiredArgsConstructor
 public class ExotelCallProviderClient implements CallProviderClient {
+
 
     @Value("${exotel.accountSid}")
     private String accountSid;

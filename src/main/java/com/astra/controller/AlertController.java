@@ -98,7 +98,7 @@ public ResponseEntity<?> ack(@PathVariable Long id) {
             if (batchCode != null) {
                 batchRepo.findByBatchCode(batchCode).ifPresent(b -> {
                     if ("RECALL".equals(a)) b.setStatus(BatchStatus.RECALLED);
-                    if ("RESOLVE".equals(a)) b.setStatus(BatchStatus.NORMAL);
+                    if ("RESOLVE".equals(a)) b.setStatus(BatchStatus.PENDING);
                     batchRepo.save(b);
                 });
             }

@@ -3,7 +3,6 @@ package com.astra.controller;
 import com.astra.model.Alert;
 import com.astra.model.User;
 import com.astra.repository.AlertRepository;
-import com.astra.repository.UserRepository;
 import com.astra.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

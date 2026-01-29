@@ -12,11 +12,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/public")
+@RequestMapping("/api/consumer")
 @RequiredArgsConstructor
 public class ConsumerJourneyController {
 
@@ -25,15 +26,44 @@ public class ConsumerJourneyController {
     private final AlertActionRepository actionRepo;
     private final LabTestRepository labRepo;
     private final EventRepository eventRepo;
-
-    // Cold-chain scoring service
     private final BoxReadingsService boxReadingsService;
 
-    @GetMapping("/batch-journey")
-    public ResponseEntity<?> getJourney(@RequestParam String batchCode) {
+    // ✅ Consumer Journey API (Accepts batchCode OR boxId)
+    @GetMapping("/journey/{id}")
+    public ResponseEntity<?> getJourney(@PathVariable String id) {
 
-        Batch batch = batchRepo.findByBatchCode(batchCode)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Batch not found"));
+        // ✅ SAFE LOOKUP — BOX FIRST, THEN BATCH CODE
+        Batch batch = null;
+
+List<Batch> list = batchRepo.findAllByBoxIdOrderByCreatedAtDesc(id);
+
+if (list != null && !list.isEmpty()) {
+    batch = list.get(0); // latest batch
+}
+
+if (batch == null) {
+    batch = batchRepo.findByBatchCode(id).orElse(null);
+}
+
+if (batch == null) {
+    throw new ResponseStatusException(
+        HttpStatus.NOT_FOUND,
+        "Batch not found for this box or batch code"
+    );
+}
+
+        if (batch == null) {
+            batch = batchRepo.findByBatchCode(id).orElse(null);
+        }
+
+        if (batch == null) {
+            throw new ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Batch not found for this box or batch code"
+            );
+        }
+
+        String batchCode = batch.getBatchCode();
 
         List<JourneyEventDto> timeline = new ArrayList<>();
 
@@ -58,41 +88,47 @@ public class ConsumerJourneyController {
         // DEVICE EVENTS
         try {
             eventRepo.findByBatchCode(batchCode).forEach(ev -> {
-                String ts = safeIso(ev.getTs() != null ? ev.getTs().toString() : null);
-                String detail = ev.getType() + " : " + (ev.getPayloadJson() == null ? "" : ev.getPayloadJson());
+
+                if (ev.getTs() == null) {
+                    ev.setTs(LocalDateTime.now());
+                }
+
+                String ts = safeIso(ev.getTs().toString());
+                String detail = ev.getType() + " : " +
+                        (ev.getPayloadJson() == null ? "" : ev.getPayloadJson());
+
                 timeline.add(new JourneyEventDto(ts, "EVENT", detail, ev.getType()));
             });
         } catch (Throwable ignored) {}
 
-        // Sort newest first
+        // SORT TIMELINE
         timeline.sort((a, b) -> {
             Instant ia = parseIsoSafe(a.getTimestampIso());
             Instant ib = parseIsoSafe(b.getTimestampIso());
             return ib.compareTo(ia);
         });
 
-        // ---------------------------------------------------------------------
-        // 1) TIMELINE SCORE (EVENT-BASED)
-        // ---------------------------------------------------------------------
-        int totalEvents   = timeline.size();
-        int alertsCount   = 0;
-        int actionsCount  = 0;
-        int labCount      = 0;
-        int deviceMoves   = 0;
+        // LIMIT SIZE
+        if (timeline.size() > 100) {
+            timeline.subList(100, timeline.size()).clear();
+        }
 
+        // ---------------- SCORE ----------------
+        int alertsCount = 0;
+        int actionsCount = 0;
+        int labCount = 0;
+        int deviceMoves = 0;
         boolean labFailed = false;
 
         for (JourneyEventDto ev : timeline) {
             String t = ev.getType();
             if (t == null) continue;
-
-            t = t.toUpperCase(Locale.ROOT);
+            t = t.toUpperCase();
 
             if (t.equals("ALERT")) alertsCount++;
             else if (t.equals("ACTION") || t.equals("ALERT_ACTION")) actionsCount++;
             else if (t.equals("LAB") || t.equals("LAB_TEST")) {
                 labCount++;
-
                 if (ev.getMeta() != null &&
                         ev.getMeta().toLowerCase().contains("fail")) {
                     labFailed = true;
@@ -104,84 +140,52 @@ public class ConsumerJourneyController {
         int timelineScore = 100;
         timelineScore -= alertsCount * 12;
         timelineScore -= labCount * 4;
-        timelineScore -= actionsCount * 1;
+        timelineScore -= actionsCount;
         timelineScore -= Math.min(deviceMoves, 10);
 
         if (timelineScore < 0) timelineScore = 0;
-
-        // if lab failed → hard drop
         if (labFailed) timelineScore = Math.min(timelineScore, 40);
 
-        // ---------------------------------------------------------------------
-        // 2) COLD CHAIN SCORE from service (0–100)  -> by BATCH CODE
-        // ---------------------------------------------------------------------
-        int coldChainScore = boxReadingsService.calculateColdChainScore(batch.getBatchCode());
-
-        // ---------------------------------------------------------------------
-        // 3) LAB SCORE (0–100)
-        // ---------------------------------------------------------------------
+        int coldChainScore = boxReadingsService.calculateColdChainScore(batch.getBoxId());
         int labScore = labFailed ? 20 : 95;
 
-        // ---------------------------------------------------------------------
-        // 4) FINAL HYBRID SCORE — OPTION A
-        // ---------------------------------------------------------------------
-        double finalScoreD =
+        int finalScore = (int) Math.round(
                 0.6 * coldChainScore +
                 0.3 * timelineScore +
-                0.1 * labScore;
+                0.1 * labScore
+        );
 
-        int finalScore = (int) Math.round(finalScoreD);
-        if (finalScore < 0) finalScore = 0;
-        if (finalScore > 100) finalScore = 100;
+        finalScore = Math.max(0, Math.min(100, finalScore));
 
-        // -----------------------------------------------------------
-        // 5) QUALITY STATUS + CONSUMER MESSAGE
-        // -----------------------------------------------------------
+        // ---------------- QUALITY ----------------
         String qualityStatus;
         String qualityMessage;
 
         if (finalScore >= 85) {
             qualityStatus = "SAFE";
-            qualityMessage = "Tulsi quality is excellent. Storage conditions remained stable.";
+            qualityMessage = batch.getHerbName() + " quality is excellent.";
         } else if (finalScore >= 60) {
             qualityStatus = "MODERATE";
-            qualityMessage = "Tulsi quality is acceptable. Minor storage deviations detected.";
+            qualityMessage = batch.getHerbName() + " quality acceptable.";
         } else {
             qualityStatus = "RISKY";
-            qualityMessage = "Significant storage or handling issues detected. Use with caution.";
+            qualityMessage = "Storage or handling risk detected.";
         }
 
-        // -----------------------------------------------------------
-        // 6) RECALL STATUS (based on Batch.status)
-        // -----------------------------------------------------------
-        boolean recalled = batch.getStatus() != null && batch.getStatus() != BatchStatus.NORMAL;
-        String recallStatus;
+        boolean recalled = batch.getStatus() == BatchStatus.RECALLED;
+
         if (recalled) {
-            recallStatus = "RECALLED";
-            // If recalled, override quality to be clearly risky
             qualityStatus = "RISKY";
             qualityMessage = "This batch has been recalled. Do not consume.";
-        } else {
-            recallStatus = "NO_RECALL";
         }
 
-        // summary text
-        String summary = String.format(
-                "Journey recorded %d updates: %d alerts, %d actions, %d lab checks and %d device events. Final Tulsi quality score: %d/100.",
-                totalEvents, alertsCount, actionsCount, labCount, deviceMoves, finalScore
-        );
-
-        // ---------------------------------------------------------------------
-        // FINAL OUTPUT
-        // ---------------------------------------------------------------------
         Map<String, Object> out = new HashMap<>();
         out.put("batch", BatchDto.from(batch));
         out.put("timeline", timeline);
         out.put("qualityScore", finalScore);
-        out.put("journeySummary", summary);
         out.put("qualityStatus", qualityStatus);
         out.put("qualityMessage", qualityMessage);
-        out.put("recallStatus", recallStatus);  // NEW
+        out.put("shipmentStatus", batch.getShipmentStatus());
 
         return ResponseEntity.ok(out);
     }
@@ -190,12 +194,8 @@ public class ConsumerJourneyController {
         if (s == null || s.isBlank()) return Instant.EPOCH;
         try {
             return Instant.parse(s);
-        } catch (DateTimeParseException ex) {
-            try {
-                return Instant.parse(s.replace(" ", "T"));
-            } catch (Exception e) {
-                return Instant.EPOCH;
-            }
+        } catch (Exception e) {
+            return Instant.EPOCH;
         }
     }
 
@@ -205,11 +205,7 @@ public class ConsumerJourneyController {
             Instant.parse(s);
             return s;
         } catch (Exception e) {
-            try {
-                return parseIsoSafe(s).toString();
-            } catch (Exception ex) {
-                return "";
-            }
+            return parseIsoSafe(s).toString();
         }
     }
 }
