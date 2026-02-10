@@ -1,0 +1,192 @@
+IMPORTANT:
+You have NO prior context about HerbTrace.
+Follow ONLY what is written here.
+Do NOT invent features.
+Do NOT rename labels unless explicitly stated.
+Do NOT add the word “demo” anywhere.
+Brand name must ALWAYS be “HerbTrace”.
+
+This repository is ONLY for the Lab Tester role.
+
+--------------------------------------------------
+HERBTRACE PRODUCT IDENTITY
+--------------------------------------------------
+App Name: HerbTrace
+
+Product feel:
+- Clean
+- Calm
+- Trustworthy
+- Indian agri-tech product
+- NOT an admin panel
+
+Avoid:
+- Long descriptive paragraphs
+- Dense text blocks
+- White-on-white boring layouts
+- Generic dashboard wording
+
+--------------------------------------------------
+GLOBAL UI SYSTEM
+--------------------------------------------------
+Layout:
+- Mobile-first
+- Centered content
+- Generous spacing
+- Clear visual hierarchy
+
+Cards:
+- White cards
+- Large rounded corners
+- Soft shadow
+- One purpose per card
+
+Typography:
+- Big numbers first
+- Short headings
+- Minimal helper text
+- No paragraphs under headings
+
+Colors:
+- Primary: Green (HerbTrace)
+- Warning: Amber
+- Critical: Red
+
+--------------------------------------------------
+TEXT REDUCTION (MANDATORY)
+--------------------------------------------------
+REMOVE long subtitles like:
+“Monitor and manage…”
+“Manage and track…”
+
+Pages must show ONLY:
+- Page title
+- Data
+- Actions
+
+--------------------------------------------------
+DASHBOARD
+--------------------------------------------------
+Show ONLY:
+- Samples Assigned (big number)
+- Require Attention (color coded)
+- Testing Accuracy (secondary)
+
+Recent Activity:
+- Max 3 items
+- One-line each
+- No descriptions
+
+--------------------------------------------------
+SAMPLES
+--------------------------------------------------
+- Keep table/list
+- Rows must feel like cards
+- Increase row padding
+- Status shown as colored pills
+- No explanatory text
+
+--------------------------------------------------
+RECALLS
+--------------------------------------------------
+- Each recall shown as a CARD
+- Colored left accent strip
+- Show:
+  Herb
+  Batch ID
+  Severity
+  Status
+- No subtitles
+
+--------------------------------------------------
+MULTI-LANGUAGE (REQUIRED, REAL)
+--------------------------------------------------
+Languages:
+- English (EN)
+- Hindi (HI)
+- Marathi (MR)
+- Gujarati (GU)
+
+Rules:
+- Globe icon + language code in header
+- Switching language updates ALL visible UI text
+- Store selected language in localStorage
+- Default language = English
+- Use a simple translations object
+- Do NOT translate:
+  IDs, numbers, units, HerbTrace name
+
+--------------------------------------------------
+LOGIN / LOGOUT
+--------------------------------------------------
+Login:
+- HerbTrace branding
+- Mobile / Email tabs
+- Clean centered layout
+- OTP flow unchanged
+
+After login:
+- Redirect to Dashboard
+
+Profile:
+- Simple profile card
+- Show name + role (Lab Technician)
+- Visible Logout button
+
+Logout:
+- Clear auth state
+- Redirect to login screen
+
+--------------------------------------------------
+NOTIFICATIONS (IOT-BASED)
+--------------------------------------------------
+Lab Tester must receive notifications for:
+- New sample assigned
+- Sample status change
+- Recall triggered
+- IoT alerts:
+  High temperature
+  Low humidity
+  Sensor disconnected
+
+Display notifications:
+- Bell icon in header
+- Alerts / Recalls section
+- Dashboard “Require Attention” card
+
+Notification text must respect selected language.
+
+--------------------------------------------------
+OFFLINE MODE (REUSABLE)
+--------------------------------------------------
+Purpose:
+App must open without internet.
+Implementation must be GENERIC so it can be reused later in Farmer app.
+
+Requirements:
+- Add service worker
+- Cache HTML, CSS, JS
+- Cache last successful:
+  Dashboard data
+  Samples list
+  Recalls list
+
+When offline:
+- Show top banner:
+  “Offline mode — showing saved data”
+- Allow read-only access
+- Disable destructive actions gracefully
+
+When online again:
+- Auto refresh data
+- Remove offline banner
+
+--------------------------------------------------
+FINAL RULE
+--------------------------------------------------
+If something is NOT written above,
+DO NOT implement it.
+Focus on clean UI, minimal text,
+real multilingual support,
+IoT-linked notifications,
+and offline readiness.

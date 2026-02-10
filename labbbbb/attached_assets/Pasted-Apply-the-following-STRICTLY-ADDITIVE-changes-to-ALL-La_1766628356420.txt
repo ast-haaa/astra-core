@@ -1,0 +1,59 @@
+Apply the following STRICTLY ADDITIVE changes to ALL Lab Sample Detail views (for every sample, not just one).
+________________________________________
+🔐 IMPORTANT (DO NOT IGNORE)
+•	Do NOT remove or modify any existing UI, fields, actions, or logic
+•	Do NOT refactor existing components
+•	Existing mock / seed data must remain unchanged
+•	New features must work with current mock data
+•	Changes must apply globally to all samples
+________________________________________
+1️⃣ SOURCE BOX INFO (GLOBAL – READ ONLY)
+In every Sample Detail page / modal, show a read-only line:
+Format:
+Source Box: {BOX_ID}
+Rules:
+•	Read-only
+•	Small, muted text
+•	Value must come from existing sample → box data
+•	Appears below the sample title
+•	No edit option
+________________________________________
+2️⃣ HUB ID (GLOBAL – READ ONLY)
+In every Sample Detail view, display:
+Format:
+Hub ID: {HUB_ID}
+Rules:
+•	Read-only
+•	No edit option
+•	Placed near the Temperature / Humidity section
+•	Hub ID must be derived from existing box → hub relationship
+________________________________________
+3️⃣ QR SCAN INDICATOR (SAMPLE DETAIL ONLY – FULLY FUNCTIONAL)
+Near the Hub ID, add a small QR icon or helper text:
+Text:
+📷 Scan QR to verify source
+Rules:
+•	Fully functional (UI + logic)
+•	Use existing QR / verification infrastructure
+•	No dummy or static values
+•	On scan, verify:
+•	QR → Hub → Box → Sample
+•	QR must appear ONLY in Sample Detail view
+•	Do NOT add QR on Dashboard, Sidebar, or Samples list
+•	Desktop fallback required (upload QR image or manual code input)
+________________________________________
+4️⃣ INFO NOTE (GLOBAL)
+At the bottom of Sample Detail view OR Samples page, show:
+Samples are automatically created when farmers add storage boxes.
+Rules:
+•	Very small, muted text
+•	Non-blocking
+•	Applies to all samples
+________________________________________
+🔗 FUNCTIONAL REQUIREMENTS
+•	Box ID and Hub ID must be derived from existing relational data
+•	No new temporary fields
+•	No API or data-source switch that clears mock data
+•	QR verification must work with current mock mappings
+•	No breaking changes
+

@@ -1,0 +1,91 @@
+✅ FINAL PROMPT — PROTOTYPE MODE + HUB/BOX + QR FUNCTIONALITY
+Apply the following STRICTLY ADDITIVE changes to ALL Lab Sample Detail views
+(for every sample, not just one).
+________________________________________
+🔐 IMPORTANT (DO NOT IGNORE)
+•	Do NOT remove or modify any existing UI, fields, actions, or logic
+•	Do NOT refactor existing components
+•	Existing mock / seed data must remain unchanged
+•	New features must work with current mock data
+•	Changes must apply globally to all samples
+•	This is a PROTOTYPE, not full production
+________________________________________
+1️⃣ SOURCE BOX INFO (GLOBAL – READ ONLY)
+In every Sample Detail page / modal, show a read-only line:
+Format:
+Source Box: {BOX_ID}
+Rules:
+•	Read-only
+•	Small, muted text
+•	Value must come from existing sample → box data
+•	Appears directly below the sample title
+•	No edit option
+________________________________________
+2️⃣ HUB ID (GLOBAL – READ ONLY) ❗MANDATORY
+In every Sample Detail view, display:
+Format:
+Hub ID: {HUB_ID}
+Rules:
+•	Read-only
+•	No edit option
+•	Placed near the Temperature / Humidity section
+•	Hub ID must be derived from existing box → hub relationship
+•	This must be visible before QR verification
+________________________________________
+3️⃣ QR SCAN INDICATOR
+(SAMPLE DETAIL ONLY – PROTOTYPE FUNCTIONAL)
+Near the Hub ID, add a QR icon or helper text:
+🔹 PROTOTYPE-SPECIFIC BEHAVIOR (VERY IMPORTANT)
+✅ Tulsi sample (Sensor-based demo)
+•	Keep as-is
+•	“✔ Source Verified” can remain visible
+•	This represents sensor-integrated flow
+•	Optional label:
+Source Verified (Sensor-based)
+________________________________________
+✅ All other samples (Manual / prototype flow)
+•	Do NOT auto-verify on QR click
+•	QR click should:
+1.	Open scan UI (camera / upload / input)
+2.	Read boxId and hubId from QR
+3.	Compare with visible:
+4.	Source Box
+5.	Hub ID
+•	Show result only after comparison:
+Success:
+✔ Source Verified
+Failure:
+✖ Verification Failed
+Scanned QR does not belong to this sample
+________________________________________
+❌ STRICTLY REMOVE / HIDE
+•	Any auto-success logic
+•	Any “Simulate Failure” or debug-only controls
+(these must not be visible to lab testers)
+________________________________________
+4️⃣ INFO NOTE (GLOBAL)
+At the bottom of Sample Detail view OR Samples page, show:
+Samples are automatically created when farmers add storage boxes.
+Rules:
+•	Very small, muted text
+•	Non-blocking
+•	Applies to all samples
+________________________________________
+🔗 FUNCTIONAL REQUIREMENTS
+•	Box ID and Hub ID must be derived from existing relational data
+•	No new temporary fields
+•	No API or data-source switch that clears mock data
+•	QR verification must work with current mock mappings
+•	No breaking changes
+________________________________________
+✅ FINAL ACCEPTANCE CRITERIA
+•	Source Box & Hub ID are clearly visible in Sample Detail
+•	Tulsi remains verified (sensor demo)
+•	Other samples require QR scan + match to verify
+•	QR does NOT auto-verify on click
+•	No debug text visible
+•	Existing UI & mock data remain untouched
+________________________________________
+🧠 One-line summary (for dev):
+Add Hub ID & Source Box first, then make QR verification meaningful.
+Tulsi stays verified (sensor demo), others follow manual prototype flow.

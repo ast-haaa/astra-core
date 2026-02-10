@@ -1,0 +1,97 @@
+ FINAL PROMPT — PROTOTYPE-AWARE · HUB/BOX MANDATORY · QR RESTORE
+Apply the following STRICTLY ADDITIVE changes to ALL Lab Sample Detail views
+(for every sample, not just one).
+________________________________________
+🔐 IMPORTANT (DO NOT IGNORE)
+•	Do NOT remove or modify any existing UI, fields, actions, or logic
+•	Do NOT refactor existing components
+•	Existing mock / seed data must remain unchanged
+•	New features must work with current mock data
+•	Changes must apply globally to all samples
+•	This is a PROTOTYPE, not full production
+________________________________________
+❗ CURRENT ISSUES TO FIX (CONTEXT)
+•	Hub ID and Source Box are not visible in Sample Detail
+•	QR verification is auto-success without scan
+•	QR has been removed from Tulsi, which is incorrect
+•	Verification is shown without showing what is being verified
+These must be corrected.
+________________________________________
+1️⃣ SOURCE BOX INFO (GLOBAL – READ ONLY) ❗MANDATORY
+In every Sample Detail page / modal, show:
+Source Box: {BOX_ID}
+Rules:
+•	Read-only
+•	Small, muted text
+•	Value from existing sample → box data
+•	Appears directly below the sample title
+•	Must be visible for ALL samples (including Tulsi)
+________________________________________
+2️⃣ HUB ID (GLOBAL – READ ONLY) ❗MANDATORY
+In every Sample Detail view, show:
+Hub ID: {HUB_ID}
+Rules:
+•	Read-only
+•	No edit option
+•	Placed near Temperature / Humidity
+•	Derived from existing box → hub relationship
+•	Must be visible before any QR verification
+________________________________________
+3️⃣ QR SCAN INDICATOR
+(SAMPLE DETAIL ONLY – PROTOTYPE FUNCTIONAL)
+Near the Hub ID, show:
+📷 Scan QR to verify source
+Global Rules:
+•	QR must appear ONLY in Sample Detail view
+•	❌ Do NOT remove QR from any sample
+•	❌ Do NOT add QR to Dashboard / Sidebar / Samples list
+•	Desktop fallback required (upload QR / manual input)
+________________________________________
+🔹 PROTOTYPE BEHAVIOR (VERY IMPORTANT)
+✅ Tulsi sample (Sensor-based demo)
+•	QR MUST BE VISIBLE (do NOT remove)
+•	“✔ Source Verified” may appear by default
+•	Represents sensor-integrated flow
+•	Optional label:
+Source Verified (Sensor-based)
+________________________________________
+✅ All other samples (Manual prototype flow)
+•	Do NOT auto-verify on QR click
+•	QR click should:
+1.	Open scan UI (camera / upload / input)
+2.	Read boxId and hubId
+3.	Compare with visible:
+	Source Box
+	Hub ID
+•	Show result only after comparison:
+Success:
+✔ Source Verified
+Failure:
+✖ Verification Failed
+Scanned QR does not belong to this sample
+________________________________________
+❌ STRICTLY REMOVE / DISALLOW
+•	Any auto-success logic on QR click
+•	Any debug controls (e.g. “Simulate Failure”)
+•	Any logic that verifies without showing Hub ID + Source Box
+________________________________________
+🔗 FUNCTIONAL REQUIREMENTS
+•	Box ID and Hub ID must come from existing relational data
+•	No new temporary fields
+•	No API or data-source switch that clears mock data
+•	QR verification must work with current mock mappings
+•	No breaking changes
+________________________________________
+✅ FINAL ACCEPTANCE CRITERIA (NON-NEGOTIABLE)
+•	Source Box & Hub ID visible in Sample Detail for ALL samples
+•	QR visible for Tulsi and all other samples
+•	Tulsi remains verified (sensor demo)
+•	Other samples are not auto-verified
+•	QR verification happens only after scan + match
+•	Existing UI & mock data untouched
+________________________________________
+🧠 One-line summary (for dev):
+You cannot show “Source Verified” unless Hub ID and Source Box are visible.
+Tulsi keeps QR + verified (sensor demo).
+Others follow manual prototype QR flow.
+

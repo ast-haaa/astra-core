@@ -1,0 +1,94 @@
+Update the existing HerbTrace Consumer project. Do NOT rebuild the project. Only modify the current codebase.
+
+Apply these updates:
+
+========================================
+1) LIGHT + DARK MODE (DEFAULT = LIGHT)
+========================================
+- Add Tailwind dark mode (class-based).
+- Default theme must be LIGHT.
+- Add <ThemeToggle /> in Navbar.
+- Store the selected theme in localStorage.
+- Update root wrappers to support:
+    light: bg-slate-50 text-slate-900
+    dark:  dark:bg-slate-950 dark:text-slate-50
+
+========================================
+2) FULL MULTILINGUAL COVERAGE
+========================================
+- EVERY visible string in the entire app must use t(key).
+- This includes: timeline, timeline actions, summary card, quality score card, recall banner, chatbot, buttons, placeholders, and map labels.
+- Add any missing translation keys needed for new features.
+
+========================================
+3) TIMELINE UPGRADE (MAP + ACTIONS)
+========================================
+Modify TimelineEvent type to:
+    actions?: string[]
+    lat?: number
+    lng?: number
+
+Add these to Timeline:
+- At the top of the timeline, add <TimelineMap /> (Leaflet or dummy component).
+- For each timeline event, render:
+    - Title
+    - Actor
+    - Time
+    - Location
+    - Bullet list of actions[] items
+
+IMPORTANT:
+- Include a boolean-style action like:
+    "Farmer took action: Yes" or "Farmer took action: No"
+    Use translations via t("farmerActionYes") / t("farmerActionNo").
+
+========================================
+4) JOURNEY SUMMARY CARD
+========================================
+Add <JourneySummaryCard /> showing:
+- Total number of timeline events
+- Start → End location
+- Total travel time (mock)
+- Actors involved (Farmer, Transporter, Lab)
+All text must use t().
+
+Insert this card at the top of TracePage after the header card.
+
+========================================
+5) QUALITY SCORE CARD
+========================================
+Add <QualityScoreCard /> showing:
+- A 0–100 score derived from environment + labTest + recall status.
+- A green/yellow/red indicator bar.
+- Labels from translations:
+    t("qualitySafe")
+    t("qualityWarn")
+    t("qualityBad")
+
+Place it under JourneySummaryCard.
+
+========================================
+6) RECALL SYSTEM MUST REMAIN FULLY WORKING
+========================================
+Keep existing RecallBanner behavior:
+- Title
+- Reason
+- Discard / Still Have buttons
+- Thank-you text on click
+
+========================================
+7) COMPONENTS TO ADD
+========================================
+Add these files:
+- components/ThemeToggle.tsx
+- components/TimelineMap.tsx
+- components/JourneySummaryCard.tsx
+- components/QualityScoreCard.tsx
+
+========================================
+8) DO NOT MODIFY ANY OTHER APP STRUCTURE
+========================================
+- No file deletions.
+- No full rewrites.
+- Only generate updated/added files.
+- Keep all styling consistent with Tailwind classes already used.

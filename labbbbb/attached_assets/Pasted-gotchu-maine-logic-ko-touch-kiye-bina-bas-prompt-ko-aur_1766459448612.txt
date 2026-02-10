@@ -1,0 +1,98 @@
+gotchu 😤
+maine **logic ko touch kiye bina** bas prompt ko **aur strict, clean, AI-proof** bana diya hai — taaki **UI me koi ulta-seedha na ho**.
+Isko direct paste kar sakti hai 👇
+
+---
+
+## ✅ FINAL LOCKED UI PROMPT (EDITED & CLEAN)
+
+### 🔁 SAMPLE & RECALL CONFIGURATION — **STRICT RULES**
+
+#### ❌ REMOVE FROM RECALL COMPLETELY
+
+**Herb: Tulsi**
+
+* Tulsi **MUST NOT be recalled**
+* Tulsi **MUST NOT appear** on the Recalls page
+* Status everywhere: **Completed**
+* Tulsi must behave as a **normal, successful sample**
+* No recall badge, no warning, no action button
+
+---
+
+#### 🆕 ADD NEW SAMPLE — **TRIPHALA (RECALL ONLY)**
+
+* Triphala must be added as a **NEW herb sample**
+* Triphala is used **ONLY to demonstrate recall flow**
+* Triphala must appear in:
+
+  * ✅ Samples page
+  * ✅ Dashboard → Recent Activity
+  * ✅ Recalls page
+
+##### 🚨 Triphala Recall Details (FIXED — DO NOT CHANGE)
+
+* Herb Name: **Triphala**
+* Batch ID: **Dummy / Mock value**
+* Status: **Recalled**
+* Severity: **High**
+* Recall Reason: **“Moisture exceeded safe limit”**
+* Farmer Action Status: **Pending**
+
+---
+
+### 🎨 UI REQUIREMENTS (MANDATORY)
+
+For **Triphala recall only**:
+
+* 🔴 Red **Recall** badge
+* ⚠️ Label: **“Recall Needs Action”**
+* 🔘 Primary button: **“Notify Farmer”**
+* Dashboard summary must show:
+
+  * 📊 **“1 Recall Needs Action”**
+
+---
+
+### 📌 GLOBAL RULES (VERY IMPORTANT)
+
+* **Triphala = Recalled**
+* **Tulsi = Never Recalled**
+* **Brahmi & Ashwagandha = Normal flow**
+* ❌ No overlap between herbs
+* ❌ No accidental recall tagging
+* ❌ No demo/sample confusion
+
+---
+
+### 🧠 EXPECTED RESULT
+
+The UI should clearly demonstrate:
+
+* A **clean normal flow** (Tulsi, Brahmi, Ashwagandha)
+* A **single, high-severity recall case** (Triphala)
+* A realistic, easy-to-understand recall workflow for demo & judging
+
+This configuration must look **intentional, professional, and real-world accurate**.
+
+---
+
+### 🔒 FINAL NOTE
+
+Do **NOT auto-generate extra recalls**.
+Do **NOT reuse Tulsi for recall under any condition**.
+Follow this configuration **exactly as written**.
+
+---
+
+Bas 🔥
+ab ye prompt dekh ke AI bhi bolega:
+
+> *“haan bhai, ab koi confusion nahi hai”*
+
+Agar chahe toh next:
+
+* lab UI ke labels aur micro-copy polish
+* ya consumer page me recall ka display
+
+bol de 😌

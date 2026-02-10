@@ -1,0 +1,78 @@
+APPLY THESE CHANGES EXACTLY (NO EXTRA ADDITIONS)
+
+APP NAME: HerbTrace
+PORTAL: Lab / Quality Analyst
+
+================================
+1) PROFILE SETUP AFTER LOGIN (FIX)
+================================
+- After OTP verification, ALWAYS check profileComplete flag.
+- If profileComplete = false:
+  → Force redirect to "Complete Your Profile"
+  → Block Dashboard, Samples, Recalls until profile is saved.
+- Dashboard must NEVER load before profile setup.
+
+PROFILE SETUP FIELDS (MATCH FARMER STYLE):
+- Full Name
+- Lab Name
+- Unique Lab ID (auto-generated, read-only)
+- Mobile (read-only)
+- Email (read-only)
+- State (dropdown – FIX overflow issue)
+- City
+- Area / Village
+- Preferred Language
+
+REMOVE COMPLETELY:
+- Theme / Light–Dark option (DO NOT show anywhere)
+
+Button:
+- Save & Continue
+
+================================
+2) MULTI-LANGUAGE (EVERY PAGE)
+================================
+- Language support REQUIRED on ALL pages:
+  English, Hindi, Marathi, Gujarati
+- Language switch icon must appear on EVERY page.
+- Translate ALL text:
+  titles, buttons, placeholders, alerts, toasts, dropdown values.
+
+================================
+3) PROFILE SETUP UI IMPROVEMENTS
+================================
+- Fix dropdown overflow (State list should not float weirdly).
+- Improve spacing so form does not look cramped.
+- Icons on all input fields (same as Farmer app).
+- Layout must look clean and premium (no weird empty space).
+
+================================
+4) LAB RESULT + FILE UPLOAD (CONFIRM)
+================================
+- Keep Lab Report Upload:
+  PDF / JPG / PNG only.
+- Upload section must be clean and well-aligned.
+- No overlap with other fields.
+- Keep:
+  Test Result (Pass / Fail)
+  Remarks / Observations
+
+================================
+5) REMOVE THEME OPTION EVERYWHERE
+================================
+- Remove Light / Dark toggle from:
+  Profile setup
+  Profile page
+  Settings
+- App uses default theme only.
+
+================================
+6) UI CONSISTENCY
+================================
+- Match Farmer app spacing, border radius, card style.
+- No overlapping text.
+- No watermark backgrounds.
+- Icons everywhere (inputs, cards, actions).
+
+DO NOT ADD NEW FEATURES.
+ONLY FIX THE ABOVE POINTS.

@@ -1,0 +1,177 @@
+FIX OVERLAP + MULTI-LANGUAGE + UPLOAD UI
+(STRICT – UI ONLY, MATCH FARMER APP EXACTLY)
+
+====================================================
+SCOPE
+====================================================
+
+This prompt applies to:
+- Sample Update Modal
+- Profile Setup
+- Profile Edit
+- Header Language Selector
+- ANY dropdown anywhere in the app
+
+NO feature addition.
+NO layout redesign.
+ONLY UI bug fixes + visual cleanup.
+
+====================================================
+1) GLOBAL DROPDOWN OVERLAP FIX (CRITICAL)
+====================================================
+
+NO dropdown is allowed to overlap:
+- Any input field
+- Any card
+- Header
+- Modal content
+- Upload section
+- Remarks field
+- Any UI behind it
+
+This applies to ALL dropdowns:
+- Status dropdown
+- Test Result dropdown
+- Language selector (header)
+- Profile Setup dropdowns
+- Profile Edit dropdowns
+- Any translated dropdown (Hindi / Marathi / Gujarati)
+
+STRICT RULES:
+- Dropdown opens ONLY below its trigger.
+- Maintain minimum vertical gap (8–12px).
+- Same width as trigger.
+- Solid white background only.
+- Rounded corners same as Farmer app.
+- Soft shadow, NO blur, NO transparency.
+
+BEHAVIOR:
+- Only ONE dropdown open at a time.
+- Opening one closes all others.
+- Clicking outside closes dropdown.
+- Dropdown must NEVER cover fields below it.
+
+TECHNICAL:
+- Render dropdowns in portal / absolute layer.
+- Parent containers must NOT clip dropdowns
+  (remove overflow:hidden where needed).
+- Proper z-index:
+  Above page/cards/modals content,
+  Below global toasts/alerts.
+
+====================================================
+2) MULTI-LANGUAGE DROPDOWN SAFETY (ALL DROPDOWNS)
+====================================================
+
+- Long translated values must NEVER overlap.
+- Increase line-height for Hindi / Marathi / Gujarati.
+- Add sufficient vertical padding in dropdown items.
+- Dropdown height must auto-adjust to content.
+- Text must not touch edges or other fields.
+- Same typography and spacing as Farmer app.
+
+====================================================
+3) SAMPLE UPDATE MODAL – UPLOAD UI IMPROVEMENT
+====================================================
+
+Target section:
+“Upload Lab Test Report”
+
+UI CHANGES (ONLY VISUAL):
+
+- Convert upload area into clean card-style box.
+- Solid white background.
+- Rounded corners same as input fields.
+- Light green dashed border (subtle).
+
+Inside upload box:
+- Upload icon (same style as Farmer app icons).
+- Title: “Upload Lab Test Report”
+- Subtitle: “PDF, JPG, PNG supported”
+- Center-aligned icon and text.
+
+Hover / Focus:
+- Subtle border highlight.
+- Very light green background tint.
+
+DO NOT:
+- Add preview
+- Add validation messages
+- Add new logic or features
+
+====================================================
+4) SPACING & ALIGNMENT FIX
+====================================================
+
+Add clean spacing between:
+- Dropdown → Temperature
+- Temperature → Humidity
+- Test Result → Upload section
+- Upload section → Remarks
+
+NO fields should touch, clip, or collide.
+
+====================================================
+5) CARD BACKGROUND CLEANUP
+====================================================
+
+- Remove any watermark-style icons inside cards.
+- Cards must be plain white like Farmer app.
+- No faded background graphics.
+
+====================================================
+6) GLOBAL MULTI-LANGUAGE ENFORCEMENT
+====================================================
+
+Apply translations IDENTICALLY to Farmer app.
+
+EVERY visible text must be translatable:
+- Headings
+- Labels
+- Placeholders
+- Buttons
+- Dropdown options
+- Status values
+- Upload section text
+- Alerts / notifications
+- Profile setup & edit text
+- Modal text
+
+NO hardcoded English text anywhere.
+
+SUPPORTED LANGUAGES (EXACT):
+- English
+- हिंदी
+- मराठी
+- ગુજરાતી
+
+BEHAVIOR:
+- Language change updates UI instantly.
+- No page refresh.
+- Language persists across:
+  Pages, Modals, Login, Profile, Reloads.
+
+====================================================
+7) CONSISTENCY RULE (NON-NEGOTIABLE)
+====================================================
+
+Lab app must behave visually as:
+“Farmer app UI + same translations + different role text only”.
+
+Role text difference:
+- Farmer app → Farmer
+- Lab app → Quality Analyst
+
+Nothing else should differ.
+
+====================================================
+FINAL CHECK
+====================================================
+
+After applying this:
+- ZERO dropdown overlap anywhere.
+- Long translated text handled cleanly.
+- Upload section looks premium and readable.
+- UI feels identical to Farmer app.
+
+If ANY overlap, clipping, or untranslated text exists → FIX IT.

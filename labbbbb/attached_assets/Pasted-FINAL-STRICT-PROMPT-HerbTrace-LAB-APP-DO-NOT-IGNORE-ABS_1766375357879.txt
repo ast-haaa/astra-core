@@ -1,0 +1,187 @@
+FINAL STRICT PROMPT — HerbTrace LAB APP (DO NOT IGNORE)
+
+========================
+ABSOLUTE DATA RULE (FIRST)
+========================
+
+SAMPLES — ONLY THESE 3. NO OTHERS ANYWHERE.
+
+1. Tulsi
+2. Ashwagandha
+3. Brahmi
+
+REMOVE COMPLETELY:
+- Neem
+- Turmeric
+- Any other sample
+
+If ANY other sample appears → DELETE IT.
+
+========================
+RECALL (MANDATORY – 1 SAMPLE ONLY)
+========================
+
+Show EXACTLY ONE recall sample:
+
+Sample Name: Tulsi  
+Status: Recalled  
+Reason: Failed lab purity test  
+Action Required: Farmer action pending  
+
+UI REQUIREMENTS:
+- Red recall badge
+- “Recall Needs Action” label
+- Button: “Notify Farmer”
+- Show recall count on Dashboard:
+  → “1 Recall Needs Action”
+
+No other recall samples.
+No empty recall page.
+
+========================
+UPLOAD LAB TEST UI (FIX THIS PROPERLY)
+========================
+
+Current upload UI looks incomplete — FIX IT.
+
+REQUIREMENTS:
+- Must look like a COMPLETE CARD (not empty / cut)
+- Solid white background
+- Same width as input fields
+- Rounded corners (same as Farmer app)
+- Soft green dashed border
+- Center aligned content
+
+INSIDE UPLOAD CARD:
+- Upload icon (same style as Farmer app)
+- Title: “Upload Lab Test Report”
+- Subtitle: “PDF, JPG, PNG supported”
+- Action text: “Click to upload file”
+
+HOVER:
+- Light green background tint
+- Border becomes slightly darker
+
+DO NOT:
+- Add preview
+- Add validation logic
+- Add progress bar
+
+UI ONLY — but LOOK FINISHED.
+
+========================
+OFFLINE MODE INDICATOR (MUST ADD)
+========================
+
+Add in HEADER (right side):
+
+- Loop / Sync icon
+- Tooltip on hover:
+  “Offline mode – data will sync automatically”
+
+No logic required.
+UI only.
+
+========================
+SAMPLE TIMELINE (READ-ONLY)
+========================
+
+Show timeline inside Sample Details:
+
+Assigned → Testing → Completed
+
+- Horizontal or vertical
+- Read-only
+- Highlight current stage
+- Same clean style as Farmer app
+
+========================
+DOWNLOAD LAB REPORT
+========================
+
+Add button in Sample Details:
+
+Button text:
+“Download Lab Report (PDF)”
+
+UI only.
+No backend logic.
+
+========================
+GLOBAL DROPDOWN OVERLAP FIX (CRITICAL)
+========================
+
+APPLIES TO **ALL DROPDOWNS**:
+- Language dropdown
+- Status dropdown
+- Test Result dropdown
+- Profile dropdowns
+- Filters
+
+RULES:
+- NO dropdown overlaps ANY UI.
+- Opens ONLY below trigger.
+- Solid white background.
+- Proper z-index (above content, below toasts).
+- ONLY one dropdown open at a time.
+- Clicking outside closes dropdown.
+- Long translated text must NOT collide.
+
+MANDATORY CSS:
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+  z-index: 9999;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  line-height: 1.6;
+}
+
+* {
+  overflow: visible !important;
+}
+
+========================
+MULTI-LANGUAGE (MATCH FARMER EXACTLY)
+========================
+
+Languages:
+- English
+- हिंदी
+- मराठी
+- ગુજરાતી
+
+RULES:
+- EVERY text must translate:
+  labels, buttons, dropdown values,
+  status text, upload text, recall text.
+- Instant switch.
+- No hard-coded English anywhere.
+- Same translation keys as Farmer app.
+
+========================
+FINAL NON-NEGOTIABLE RULE
+========================
+
+Lab App must feel like:
+
+“Farmer App UI + SAME spacing + SAME typography
++ SAME components
++ ONLY role text changed”
+
+Role text:
+Farmer → Quality Analyst
+
+NO redesign.
+NO extra samples.
+NO ignoring instructions.
+
+========================
+END
+========================

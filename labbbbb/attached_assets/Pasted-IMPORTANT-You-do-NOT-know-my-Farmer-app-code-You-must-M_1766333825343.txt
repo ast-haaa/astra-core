@@ -1,0 +1,190 @@
+IMPORTANT:
+You do NOT know my Farmer app code.
+You must MATCH the Farmer app visually and behaviorally.
+Brand name must ALWAYS remain: HerbTrace.
+
+==================================================
+ROLE & TERMINOLOGY
+==================================================
+
+- NEVER use the word: Technician
+- Role everywhere must be:
+  Quality Analyst
+- Role is AUTO-ASSIGNED
+- User must NOT select role manually
+
+==================================================
+LOGIN & OTP (FARMER STYLE)
+==================================================
+
+- OTP based login ONLY
+- No password
+- No username
+- No demo / secure / verify / authentication text
+
+Login screen text EXACTLY:
+
+Title:
+HerbTrace
+
+Subtitle:
+Welcome back, Quality Analyst
+
+Card heading:
+Login
+
+Tabs:
+Mobile | Email
+
+Primary button:
+Send OTP
+
+Helper text:
+Enter your mobile number or email to continue
+
+OTP rules:
+- Accept ANY 6-digit OTP
+- Do NOT show “Invalid OTP” for valid 6-digit input
+- Show error ONLY if OTP is empty
+- Same OTP behavior as Farmer app
+
+==================================================
+PROFILE SETUP
+==================================================
+
+After first successful OTP login, show profile setup screen.
+
+Title:
+Complete Your Profile
+
+Fields in EXACT order:
+
+1. Full Name
+2. State
+3. City
+4. Area / Village
+5. Mobile Number (READ-ONLY)
+6. Email (READ-ONLY if login via email)
+7. Role (LABEL ONLY): Quality Analyst
+8. Preferred Language: EN / HI / MR / GU
+9. Theme: Light / Dark
+
+Rules:
+- REMOVE “OTP Verified” toast from profile
+- REMOVE editable Role field
+- UI must MATCH Farmer profile UI
+
+Primary button:
+Save & Continue
+
+==================================================
+PROFILE VIEW
+==================================================
+
+Show:
+- Name
+- Role: Quality Analyst
+- Mobile
+- Email
+- Language
+- Theme
+
+Actions:
+- Edit Profile
+- Logout
+
+==================================================
+DASHBOARD
+==================================================
+
+- REMOVE background watermark images
+- REMOVE decorative icons inside cards
+- Clean spacing, no overlap
+
+Cards:
+- Samples Assigned
+- Require Attention
+- Testing Accuracy
+
+Recent Activity:
+- Simple list
+- No clutter
+
+==================================================
+SAMPLES & LAB RESULTS
+==================================================
+
+Samples list with status:
+Pending / In Testing / Completed / Rejected
+
+Sample click opens DETAIL PAGE (not crowded modal)
+
+Sample Detail includes:
+- Sample Information
+- Temperature
+- Humidity
+- Status dropdown
+- Lab Result section:
+  Upload Lab Result (PDF)
+  View Uploaded Report
+  Submit Result
+
+No overlapping dropdowns or buttons.
+
+==================================================
+RECALL LOGIC
+==================================================
+
+- Recalled batches must still appear in Lab app
+- Recall stays visible even if testing has started
+
+If batch is recalled:
+- Show red banner:
+  “This batch is under active recall”
+- Show Severity, Reason
+- Show Farmer Action: Pending / Taken
+
+Allow lab result upload with warning:
+“This result is associated with a recalled batch”
+
+==================================================
+MULTI-LANGUAGE
+==================================================
+
+Languages:
+English, Hindi, Marathi, Gujarati
+
+- 🌐 switch in header
+- ALL text must translate
+- Same tone as Farmer app
+
+==================================================
+OFFLINE MODE
+==================================================
+
+Header indicator:
+
+Offline:
+🌐❌
+Banner:
+“Offline mode — changes will sync automatically”
+
+Reconnecting:
+🔁 (rotating)
+Text:
+“Syncing data…”
+
+Online:
+🌐
+
+- Loop icon ONLY for syncing
+- Cache last data
+- Allow lab result upload offline
+- Auto-sync when online
+
+==================================================
+FINAL RULE
+==================================================
+
+If any UI text, element, or logic is NOT written above,
+DO NOT add it.

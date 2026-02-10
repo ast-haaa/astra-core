@@ -1,0 +1,159 @@
+PROJECT: HerbTrace – Lab (Quality Analyst)
+
+GOAL:
+Fix broken UI, clean sample update modal, correct sample names,
+add recall visibility, offline indicator, and premium consistency.
+UI must match Farmer app quality.
+
+==================================================
+2) SAMPLE UPDATE MODAL – UI FIX (CRITICAL)
+==================================================
+
+ISSUE:
+Modal is overflowing / cut off / looks unfinished.
+
+FIX:
+- Modal must stay fully INSIDE viewport.
+- Add max-height: 90vh
+- Enable internal scroll (overflow-y-auto).
+- Add padding bottom so last field is visible.
+
+LAYOUT ORDER (EXACT):
+1. Temperature
+2. Humidity
+3. Test Result (dropdown)
+4. Upload Lab Test Report (CARD)
+5. Remarks / Observations
+6. Action buttons
+
+==================================================
+3) UPLOAD LAB TEST REPORT – PREMIUM UI
+==================================================
+
+Current upload looks incomplete → FIX visually.
+
+Design:
+- Card-style upload box
+- Solid white background
+- Rounded corners (same as inputs)
+- Soft dashed green border
+- Center aligned
+
+Inside card:
+- Upload icon (same icon style as Farmer app)
+- Title: "Upload Lab Test Report"
+- Subtitle: "PDF, JPG, PNG supported"
+- Helper text: "Click to select"
+
+Hover:
+- Light green background tint
+- Border highlight
+
+DO NOT:
+- Add preview
+- Add validation logic
+- Add backend logic
+
+UI ONLY.
+
+5) OFFLINE MODE INDICATOR (HEADER)
+==================================================
+
+Add small loop/sync icon in header.
+
+Behavior:
+- When offline → show icon
+- Tooltip text:
+  "Offline mode – data will sync automatically"
+
+UI:
+- Minimal
+- Same icon style as Farmer app
+- No blocking UI
+
+==================================================
+6) SAMPLE TIMELINE (READ-ONLY)
+==================================================
+
+Inside Sample Details:
+
+Show timeline:
+Assigned → Testing → Completed
+
+Rules:
+- Read-only
+- Highlight current stage
+- Simple horizontal or vertical steps
+- Same style as Farmer app
+
+==================================================
+7) DOWNLOAD LAB REPORT
+==================================================
+
+If report uploaded:
+- Show button:
+  "Download Lab Report (PDF)"
+
+Rules:
+- Visible only when file exists
+- Clean secondary button
+- No logic beyond UI
+
+==================================================
+8) RECALL – MUST BE VISIBLE
+==================================================
+
+Create ONE recall example:
+
+Recall Sample:
+- Triphala
+- Reason: "Moisture exceeded safe limit"
+- Status: ACTIVE
+- Severity: HIGH
+
+UI:
+- Recalls page must show this clearly
+- Dashboard must show badge:
+  "1 Recall Needs Action"
+
+If sample already recalled:
+- Still visible in Samples
+- Marked with recall warning
+- Farmer action pending indicator (read-only text)
+
+==================================================
+9) MULTI-LANGUAGE (MATCH FARMER EXACTLY)
+==================================================
+
+Languages:
+- English
+- हिंदी
+- मराठी
+- ગુજરાતી
+
+Rules:
+- EVERY visible text must translate
+- Instant language switch
+- Persist across pages & reloads
+- Use SAME translation keys as Farmer app
+- No hardcoded English
+
+==================================================
+10) VISUAL CONSISTENCY (NON-NEGOTIABLE)
+==================================================
+
+- Solid white cards
+- NO watermark icons inside cards
+- Same spacing, radius, font sizes as Farmer
+- No transparency
+- No blur
+- Premium, clean look
+
+FINAL RULE:
+Lab app must look like:
+"Farmer app UI + Quality Analyst role text only"
+
+NO new layout.
+NO redesign.
+NO missing fixes.
+JUST CLEAN, CORRECT, PREMIUM UI.

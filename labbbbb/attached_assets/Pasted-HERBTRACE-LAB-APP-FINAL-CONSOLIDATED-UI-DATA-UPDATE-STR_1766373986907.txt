@@ -1,0 +1,203 @@
+HERBTRACE LAB APP – FINAL CONSOLIDATED UI + DATA UPDATE (STRICT)
+
+GOAL:
+Make HerbTrace Lab App visually CLEAN, COMPLETE, and MATCH Farmer App quality.
+Everything must look premium, finished, and consistent.
+NO half-cut UI, NO overlap, NO empty screens.
+
+====================================================
+A) SAMPLE / BOX NAMES (MANDATORY CHANGE)
+====================================================
+
+Use ONLY these herb/sample names everywhere:
+1. Tulsi  (PRIMARY / REFERENCE SAMPLE)
+2. Ashwagandha
+3. Brahmi
+
+REMOVE any other names:
+- Neem Extract ❌
+- Turmeric Powder ❌
+- Any extract/powder naming ❌
+
+RULE:
+- Tulsi must be the PERFECT sample (gold reference).
+- Ashwagandha & Brahmi can have simpler/static data but SAME UI.
+
+====================================================
+B) TULSI – PERFECT REFERENCE SAMPLE
+====================================================
+
+Tulsi sample must demonstrate FULL capability:
+
+- Status flow works correctly:
+  Pending → Testing → Completed / Recalled
+- No dropdown overlap anywhere
+- Test Result dropdown works cleanly
+- Upload Lab Test Report section looks COMPLETE & PREMIUM
+- Multi-language text fits properly
+- Proper spacing, no clipping, no cut UI
+- Modal height adjusts fully to content
+
+All other samples must FOLLOW Tulsi’s UI exactly.
+
+====================================================
+C) RECALL – MUST SHOW AT LEAST ONE SAMPLE
+====================================================
+
+Recalls tab MUST NOT be empty.
+
+Add ONE visible recall sample:
+
+Example Recall:
+- Herb: Ashwagandha
+- Batch ID: ASH-2024-002
+- Severity: High
+- Status: Active
+- Reason: “Moisture exceeded safe limit”
+
+UI REQUIREMENTS:
+- Proper recall card (not empty message)
+- Red/Warning visual indicator
+- Clear text, no filler like “Good job”
+
+====================================================
+D) UPLOAD LAB TEST REPORT – UI FIX (IMPORTANT)
+====================================================
+
+Current upload section feels incomplete → FIX IT.
+
+FINAL UPLOAD UI MUST:
+- Be a card-style box (solid white background)
+- Rounded corners (same as Farmer inputs)
+- Soft dashed green border
+- Proper internal padding
+- FULLY visible (no half cut / cropped bottom)
+
+Inside upload card:
+- Centered upload icon
+- Title: “Upload Lab Test Report”
+- Subtitle: “PDF, JPG, PNG supported”
+- Helper text: “Click to select”
+
+DO NOT:
+- Add preview
+- Add validation logic
+- Add backend logic
+
+UI ONLY.
+
+====================================================
+E) GLOBAL DROPDOWN OVERLAP FIX (CRITICAL)
+====================================================
+
+THIS APPLIES TO ENTIRE APP.
+
+NO dropdown may overlap:
+- Any input
+- Any card
+- Any modal content
+- Header or sidebar
+- Upload section
+- Remarks field
+
+Rules:
+- Dropdown opens ONLY below its field
+- Solid white background
+- Proper z-index
+- Same width as trigger
+- Only ONE dropdown open at a time
+- Clicking outside closes dropdown
+- Parent containers must NOT clip dropdowns
+
+This applies to:
+- Status dropdown
+- Test Result dropdown
+- Language dropdown
+- Profile Setup dropdowns
+- Profile Edit dropdowns
+
+====================================================
+F) MULTI-LANGUAGE – MATCH FARMER APP EXACTLY
+====================================================
+
+Languages:
+- English
+- हिंदी
+- मराठी
+- ગુજરાતી
+
+EVERY visible text must translate:
+- Headings
+- Labels
+- Buttons
+- Status values
+- Recall text
+- Upload section text
+- Empty states
+- Profile setup text
+
+Rules:
+- Instant language switch (no refresh)
+- Language persists across pages & modals
+- Increase line-height & padding for long text
+- No text overflow or overlap
+- Same translation keys as Farmer app
+
+====================================================
+G) PROFILE SETUP – MATCH FARMER EXACTLY
+====================================================
+
+Layout must be IDENTICAL to Farmer profile setup.
+
+Field order (STRICT):
+1. Full Name
+2. State (dropdown)
+3. City
+4. Area / Village
+5. Role (read-only → “Quality Analyst”)
+6. Mobile Number (read-only)
+7. Unique Lab ID (read-only)
+8. Preferred Language
+
+Rules:
+- Same spacing, width, padding, border-radius
+- Solid white background only
+- Same icon style as Farmer
+- NO theme toggle here
+- NO missing fields
+- NO extra fields
+
+====================================================
+H) DASHBOARD & CARDS – CLEANUP
+====================================================
+
+- Remove watermark-style background icons from cards
+- Cards must be plain white like Farmer app
+- Fix spacing so cards do not look cramped
+- Ensure all cards look complete, not floating or cut
+
+====================================================
+I) FINAL POLISH (ALLOWED ADDITIONS – UI ONLY)
+====================================================
+
+You MAY add (UI only):
+- Clear visual indicator for “Report Uploaded”
+- Better empty-state text (translated)
+
+You MUST NOT:
+- Change layout structure
+- Add new pages
+- Add animations
+- Add backend logic
+
+====================================================
+FINAL RESULT EXPECTATION
+====================================================
+
+HerbTrace Lab App should feel like:
+“Farmer App UI + same quality + same translations + role = Quality Analyst”
+
+Tulsi sample should look PERFECT.
+Nothing should look broken, half-done, or demo-like.
+
+If anything looks incomplete → FIX IT.

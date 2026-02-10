@@ -1,0 +1,146 @@
+====================================================
+A) PROFILE SCREEN – MATCH FARMER EXACTLY
+====================================================
+
+Create / update the Lab Tester Profile screen to match the Farmer profile UI pixel-by-pixel.
+
+Top Section
+
+Circular avatar
+
+Big ID number (example: 444)
+
+Role text below:
+
+“Lab Tester” or “Quality Analyst”
+
+Profile Card (READ-ONLY)
+
+Same layout as Farmer profile card.
+
+Fields (STRICT ORDER):
+
+Mobile Number (read-only)
+
+Area / Village, State
+
+Language
+
+Rules:
+
+Same icons
+
+Same spacing
+
+Same rounded white card
+
+Same typography
+
+NO editable inputs here
+
+Action List (Same as Farmer)
+
+Below the profile card, show:
+
+✏️ Edit Profile →
+
+⚙️ Settings →
+
+Same row style, same arrow icon, same padding.
+
+====================================================
+B) SETTINGS SCREEN – MATCH FARMER EXACTLY
+====================================================
+
+Settings screen must be IDENTICAL to Farmer Settings UI.
+
+Items (SAME ORDER):
+
+1️⃣ Dark Mode
+
+Toggle switch
+
+Subtitle:
+
+“Currently enabled / disabled”
+
+State must persist (mock/local storage)
+
+2️⃣ Notifications
+
+Toggle switch
+
+Subtitle:
+
+“Receive alert notifications”
+
+3️⃣ Language
+
+Shows current language (English / हिंदी / मराठी / ગુજરાતી)
+
+Navigates to language selection screen
+
+4️⃣ Help & Support
+
+Subtitle: “Get assistance”
+
+5️⃣ Privacy Policy
+
+Subtitle: “Read our policies”
+
+Footer
+
+At bottom:
+
+HerbTrace Version 1.0.0
+
+
+Centered, subtle text — same as Farmer app.
+
+====================================================
+C) LANGUAGE BEHAVIOR (IMPORTANT)
+====================================================
+
+Language selector must work exactly like Farmer
+
+Instant switch (no refresh)
+
+Persists across:
+
+Profile
+
+Settings
+
+Dashboard
+
+Recalls
+
+Same translation keys as Farmer app
+
+No hardcoded English text
+
+====================================================
+D) VISUAL RULES (STRICT)
+====================================================
+
+Solid white cards only
+
+No watermark icons
+
+No shadows mismatch
+
+No spacing difference from Farmer
+
+Dark mode compatible
+
+Mobile-first layout preserved
+
+====================================================
+FINAL EXPECTATION
+====================================================
+
+Lab Tester Profile & Settings should feel like:
+
+“Farmer App UI copied 1:1, only role text changed”
+
+If any spacing, toggle, or card looks different → FIX IT.

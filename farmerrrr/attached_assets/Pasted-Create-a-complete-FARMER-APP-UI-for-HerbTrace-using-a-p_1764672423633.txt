@@ -1,0 +1,112 @@
+Create a complete FARMER APP UI for “HerbTrace” using a premium, modern design with both LIGHT and DARK MODE support.
+
+Use the following:
+- Color tokens (copy exactly)
+- Green premium theme
+- Rounded corners 22–28px
+- Feather icons
+- Soft shadows
+- Apple-style spacing
+- Typography system given
+- Buttons & components from the component library above.
+
+SCREENS TO GENERATE:
+
+========================================================
+1. SPLASH SCREEN
+========================================================
+- HerbTrace logo (leaf + shield)
+- Fade animation
+- Tagline: “Pure. Safe. Verified.”
+
+========================================================
+2. LOGIN (Mobile Number)
+========================================================
+- Input with +91 prefilled
+- Primary button: Send OTP
+- Minimal clean look
+
+========================================================
+3. OTP VERIFICATION
+========================================================
+- 4/6 digit OTP boxes
+- Timer + Resend
+
+========================================================
+4. HOME DASHBOARD
+========================================================
+Header:
+- Hello, <Farmer Name>
+- Bell icon
+- Language icon
+
+Cards:
+1) My Boxes – count
+2) Active Alerts – color-coded numbers
+3) Today’s Summary – temp, humidity, time
+
+Bottom Tabs:
+- Home
+- Boxes
+- Alerts
+- Profile
+
+========================================================
+5. BOXES LIST
+========================================================
+- Each card displays:
+  - Box ID
+  - Status badge
+  - Temperature + Humidity
+  - Last updated
+
+========================================================
+6. BOX DETAILS
+========================================================
+- Temperature (large)
+- Humidity (large)
+- Peltier status
+- ON/OFF big toggle buttons
+- 24h chart
+
+========================================================
+7. ALERTS LIST
+========================================================
+- Color-coded alert cards
+- Title, box, timestamp
+
+========================================================
+8. ALERT DETAILS
+========================================================
+- Severity ribbon
+- Full message with placeholders filled
+- Resolve button
+
+========================================================
+9. PROFILE
+========================================================
+- Farmer photo
+- Name, mobile, village, language
+- Edit profile
+- Logout
+
+========================================================
+10. SETTINGS
+========================================================
+- Dark mode toggle
+- Language choose
+- Notifications enable
+- Help & Support
+
+========================================================
+ANIMATIONS
+========================================================
+- Fade in
+- Slide transitions
+- Button ripple
+- Bottom tab press animation
+
+Use premium spacing, premium color palette,
+and match the UI quality of Apple/Google modern apps.
+
+Generate all screens cleanly and professionally.

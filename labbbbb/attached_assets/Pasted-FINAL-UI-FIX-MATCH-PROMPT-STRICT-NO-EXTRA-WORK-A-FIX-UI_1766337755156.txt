@@ -1,0 +1,89 @@
+FINAL UI FIX & MATCH PROMPT (STRICT – NO EXTRA WORK)
+
+========================
+A) FIX UI BUGS IMMEDIATELY
+========================
+
+ISSUES TO FIX:
+
+1. DROPDOWN BACKGROUND BUG
+- All dropdown backgrounds must be SOLID WHITE.
+- Remove transparency, blur, glass, or overlay effects.
+- Dropdown list must NOT overlap header, logo, or page title.
+- Set proper z-index so dropdown appears above the form only.
+
+2. DROPDOWN OVERLAP BUG (GLOBAL – VERY IMPORTANT)
+- NO dropdown must overlap ANY field.
+- This applies to ALL dropdowns, not just Language.
+
+Dropdown must NOT overlap:
+- Unique ID
+- Mobile Number
+- Role
+- Any text input
+- Any dropdown below it
+
+Behavior rules:
+- Only ONE dropdown can be open at a time.
+- Opening a dropdown must close all others.
+- Clicking outside must close the dropdown.
+- Dropdown must render directly BELOW its own field.
+- Same width as the input field.
+
+3. CARD BACKGROUND ISSUE
+- Remove watermark-style or decorative background icons inside cards.
+- Cards must be plain white, same as Farmer app.
+
+4. SPACING FIX
+- Add consistent vertical spacing between fields.
+- Prevent any fields from touching, clipping, or overlapping.
+
+5. GLOBAL CONSISTENCY
+- Apply ALL above fixes on:
+  - Profile Setup
+  - Profile Edit
+  - Any dropdown anywhere in the app
+
+DO NOT:
+- Add new UI
+- Change layout structure
+- Add animations
+
+ONLY fix the visual bugs listed above.
+
+=====================================
+B) STRICT UI MATCH – FARMER vs LAB
+=====================================
+
+Compare Lab Profile Setup screen with Farmer Profile Setup screen.
+
+REQUIREMENTS:
+- Layout must be IDENTICAL:
+  same width, padding, spacing, border-radius.
+- Input height, font size, icon placement must match Farmer EXACTLY.
+- White solid background only (NO transparency).
+- Same icon style for all fields.
+
+FIELDS ORDER MUST MATCH FARMER EXACTLY:
+1. Full Name
+2. State (dropdown)
+3. City
+4. Area / Village
+5. Role (read-only)
+6. Mobile Number (read-only)
+7. Unique Lab ID (read-only)
+8. Preferred Language
+
+ROLE DIFFERENCE ONLY:
+- Farmer → Farmer
+- Lab → Quality Analyst
+
+STRICT RULES:
+- If spacing, font, alignment, or sizing differs → FIX IT.
+- No additional fields.
+- No missing fields.
+- No design improvisation.
+
+FINAL CHECK:
+Lab Profile Setup must visually look like:
+“Farmer Profile Setup with only the role text changed”.

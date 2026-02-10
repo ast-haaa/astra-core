@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+
+  /* HSL Values for Indian Agri-Tech Theme */
+  --background: 210 20% 98%;      /* Very light cool gray */
+  --foreground: 158 42% 18%;      /* Deep forest green text */
+  
+  --primary: 142 76% 36%;         /* Vibrant Leaf Green */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 142 30% 90%;       /* Light Mint Green */
+  --secondary-foreground: 158 42% 18%;
+  
+  --muted: 210 20% 94%;
+  --muted-foreground: 215 16% 47%;
+  
+  --accent: 38 92% 50%;           /* Warm Amber/Gold for alerts/highlights */
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 142 76% 36%;
+  
+  --radius: 1rem; /* 16px - Large rounded corners */
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold tracking-tight text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom Card Style for HerbTrace */
+.herb-card {
+  @apply bg-white rounded-2xl shadow-lg shadow-green-900/5 border border-green-50/50 hover:shadow-xl hover:shadow-green-900/10 hover:-translate-y-1 transition-all duration-300;
+}
+
+/* Global Dropdown Styling - Prevents Overlap */
+.dropdown-menu,
+.select-dropdown,
+[role="listbox"] {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  z-index: 9999;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  line-height: 1.6;
+  font-size: 14px;
+  white-space: normal;
+}
+
+.form-group,
+.dropdown-wrapper,
+.card,
+.modal-content {
+  overflow: visible !important;
+}
+
+/* Upload Card Styling */
+.upload-card {
+  background: #ffffff;
+  border: 2px dashed #b7e4c7;
+  border-radius: 14px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-card:hover {
+  background: #f3fff7;
+  border-color: #52b788;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  background: #e9fce9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.upload-text h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.upload-text p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.upload-text span {
+  font-size: 12px;
+  color: #16a34a;
+}

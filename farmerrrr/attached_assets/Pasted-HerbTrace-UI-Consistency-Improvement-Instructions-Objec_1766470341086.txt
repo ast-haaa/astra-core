@@ -1,0 +1,178 @@
+HerbTrace – UI Consistency & Improvement Instructions
+Objective
+
+Make all authentication screens (Farmer Login, OTP, Splash) visually consistent, complete, and professional with a single design system.
+
+1. Overall Design Language (Follow for all screens)
+
+Clean, minimal, modern
+
+Primary color: Green
+
+Rounded corners across cards, inputs, and buttons
+
+Soft shadows (no harsh borders)
+
+Center-aligned layouts
+
+Consistent spacing and typography
+
+2. Farmer Login Screen – Required Changes
+Header Section
+
+Center-aligned logo at the top
+
+App name “HerbTrace” below logo (bold, medium-large size)
+
+Add welcome text below:
+
+Welcome back, Farmer
+
+Login Container (Important)
+
+Place all login elements inside a white rounded card
+
+Card should have:
+
+Smooth corner radius
+
+Subtle shadow
+
+Clear separation from background
+
+Card width should feel balanced (not edge-to-edge)
+
+Mobile / Email Selector
+
+Use a rounded segmented toggle
+
+Active option:
+
+Green background
+
+White text
+
+Inactive option:
+
+White background
+
+Grey text
+
+Toggle height and padding should be comfortable for touch
+
+Input Field
+
+Mobile number field:
+
+Rounded edges
+
+Light grey border
+
+Adequate inner padding
+
+Placeholder text should be soft and readable
+
+Primary Action Button
+
+“Send OTP” button:
+
+Full width inside the card
+
+Rounded corners
+
+Solid green background
+
+Slight shadow
+
+Clear contrast with background
+
+Footer Text
+
+Text:
+
+By continuing, you agree to our Terms of Service
+
+Smaller font size
+
+Grey text
+
+“Terms of Service” highlighted in green
+
+Center aligned
+
+3. OTP Verification Screen
+
+OTP input:
+
+6 equal-sized boxes
+
+Rounded corners
+
+Consistent spacing
+
+Add text:
+
+OTP sent to ******1234
+
+“Resend in XXs”:
+
+Subtle grey text
+
+“Use different mobile/email”:
+
+Green clickable text
+
+4. Splash / Landing Screen Improvements
+Problem
+
+Screen feels empty and unfinished.
+
+Required Enhancements
+Background
+
+Use a very light green gradient or soft tinted background
+
+Avoid plain white
+
+Branding
+
+Center logo and app name
+
+App name bold and prominent
+
+Tagline below:
+
+Pure. Safe. Verified.
+
+Tagline:
+
+Smaller than app name
+
+Medium weight
+
+Grey-green color
+
+CTA Button
+
+“Continue” button:
+
+Rounded
+
+Solid green
+
+Soft shadow
+
+Proper bottom spacing
+
+Optional Enhancement (Recommended)
+
+Add a very subtle leaf/herbal watermark in background
+(low opacity, non-distracting)
+
+Expected Outcome
+
+All screens feel like part of one single product
+
+No screen looks empty or incomplete
+
+Clean, trustworthy, and production-ready UI

@@ -1,0 +1,242 @@
+PROJECT
+
+HerbTrace – Lab (Quality Analyst)
+
+GOAL
+
+Fix WRONG recall mapping, missing Triphala, Tulsi wrongly recalled, and cut / adhura Sample Update modal.
+UI must be exactly Farmer app level with Quality Analyst role text only.
+
+⚠️ NON-NEGOTIABLE RULE
+Lab app must look like:
+👉 “Farmer App UI + Quality Analyst role only”
+
+❌ No redesign
+
+❌ No new layout
+
+❌ No assumption
+
+✅ Only fixes listed below
+
+1️⃣ FINAL SAMPLE LIST (LOCK THIS)
+
+ONLY these 4 samples exist everywhere:
+
+Brahmi
+
+Ashwagandha
+
+Tulsi
+
+Triphala
+
+❌ No Neem
+❌ No Turmeric
+❌ No extra / missing samples
+
+Applies to:
+
+Dashboard
+
+Samples list
+
+Sample cards
+
+Sample details
+
+Recalls page
+
+Mock data
+
+2️⃣ RECALL – FINAL & STRICT
+❌ CURRENT BUG
+
+Tulsi is recalled ❌
+
+Triphala missing ❌
+
+✅ REQUIRED FINAL BEHAVIOR
+
+❌ Tulsi MUST NOT be recalled
+
+✅ ONLY Triphala is recalled
+
+✅ Triphala MUST appear everywhere
+
+FINAL RECALL DATA (DO NOT CHANGE)
+Sample: Triphala
+Reason: Moisture exceeded safe limit
+Status: ACTIVE
+Severity: HIGH
+Label: RECALL ACTIVE
+Text: Farmer action pending
+
+WHERE TRIPHALA RECALL MUST APPEAR
+
+Dashboard
+
+Samples list
+
+Sample details
+
+Recalls page
+
+⚠️ Recalled sample must never disappear
+
+3️⃣ DASHBOARD – REQUIRE ATTENTION CARD (FIX)
+❌ WRONG
+
+Shows pending testing.
+
+✅ FIX TO EXACTLY:
+Title: Require Attention
+Count: 1
+Text: 1 Recall Needs Action
+
+
+Rules:
+
+Count = ACTIVE recalls only
+
+Click → Recalls page
+
+Same Farmer app card style
+
+4️⃣ SAMPLE UPDATE MODAL – CUT / ADHURA FIX (CRITICAL)
+❌ PROBLEM
+
+Modal bottom cut, looks incomplete.
+
+✅ FINAL FIX (MANDATORY)
+
+Apply ALL:
+
+max-height: 90vh;
+overflow-y: auto;
+padding-bottom: 32px;
+
+
+Ensure:
+
+Modal fully visible
+
+Remarks field visible
+
+Action buttons never cut
+
+No background scroll
+
+5️⃣ SAMPLE UPDATE MODAL – FIELD ORDER (LOCKED)
+
+Order MUST be EXACT:
+
+Temperature
+
+Humidity
+
+Test Result (dropdown)
+
+Upload Lab Test Report (CARD)
+
+Remarks / Observations
+
+Action buttons
+
+6️⃣ UPLOAD LAB TEST REPORT – FINAL UI (LOCKED)
+STRICT RULES
+
+❌ No filename shown
+
+❌ No “click to change”
+
+❌ No preview
+
+❌ No validation
+
+❌ No backend logic
+
+Card must ALWAYS show (even in edit):
+Upload Lab Test Report
+PDF, JPG, PNG supported
+Click to select
+
+
+Design:
+
+White card
+
+Rounded corners
+
+Dashed green border
+
+Center aligned
+
+Light green hover
+
+⚠️ Do not change this UI further
+
+7️⃣ DOWNLOAD LAB REPORT BUTTON
+
+If report exists:
+
+Show button:
+Download Lab Report (PDF)
+
+Rules:
+
+Secondary button style
+
+Visible only when file exists
+
+UI only
+
+8️⃣ DATA CONSISTENCY (STRICT LOGIC)
+
+Recall ≠ Pending
+
+Recall ≠ Completed
+
+Recalled sample:
+
+✅ Visible everywhere
+
+❌ Never removed
+
+❌ Never auto-completed
+
+9️⃣ MULTI-LANGUAGE (MATCH FARMER)
+
+Languages:
+
+English
+
+हिंदी
+
+मराठी
+
+ગુજરાતી
+
+Rules:
+
+EVERY visible text translated
+
+No hardcoded English
+
+Instant language switch
+
+Persist across pages, modals & reload
+
+Same translation keys as Farmer app
+
+🔟 VISUAL CONSISTENCY (NON-NEGOTIABLE)
+
+Solid white cards
+
+No watermark icons
+
+Same spacing, radius, fonts as Farmer
+
+No blur
+
+No transparency

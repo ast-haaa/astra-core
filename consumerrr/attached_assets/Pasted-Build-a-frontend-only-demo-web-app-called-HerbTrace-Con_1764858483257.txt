@@ -1,0 +1,568 @@
+Build a frontend-only demo web app called “HerbTrace Consumer”.
+
+Tech:
+- React + TypeScript + Vite
+- Tailwind CSS for all styling
+- NO backend, NO fetch/axios, only mock data in the frontend
+- Mobile-first, but should look good on desktop
+
+Do NOT output explanations, only code files.
+
+=====================================
+DESIGN STYLE (FIXED THEME)
+=====================================
+
+Use a consistent, modern, premium “herbal” dashboard theme:
+
+Root:
+- Page background: dark neutral, e.g. `bg-slate-950 text-slate-50`
+- Main container: `max-w-5xl mx-auto px-4 lg:px-6 pb-24 pt-6`
+
+Cards:
+- Card style: `bg-slate-900/80 rounded-2xl border border-slate-800 shadow-lg p-4 sm:p-5 md:p-6`
+- Use `space-y-4` / `space-y-6` between sections
+
+Accent color:
+- Primary: emerald/green theme:
+  - `bg-emerald-500`, `hover:bg-emerald-400`
+  - `text-emerald-400`
+  - `border-emerald-500/50`
+
+Typography:
+- Hero title: `text-3xl md:text-4xl font-bold tracking-tight`
+- Section titles: `text-lg sm:text-xl font-semibold`
+- Body: `text-sm sm:text-base text-slate-200/90`
+- Labels: `text-xs font-medium uppercase tracking-wide text-slate-400`
+
+Buttons:
+- Primary:
+  - `inline-flex items-center justify-center rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-950 shadow hover:bg-emerald-400 transition`
+- Secondary / ghost:
+  - `inline-flex items-center justify-center rounded-full border border-slate-700 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800 transition`
+
+Status chips:
+- Base: `inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium border`
+- SAFE:
+  - `bg-emerald-500/10 text-emerald-400 border-emerald-500/40`
+- RECALLED:
+  - `bg-red-500/10 text-red-400 border-red-500/40`
+
+Metric cards (for temperature/humidity etc.):
+- `bg-slate-950/50 rounded-xl border border-slate-800 px-3 py-2`
+
+Timeline:
+- Vertical timeline layout:
+  - `grid grid-cols-[1.25rem,1fr] gap-4`
+  - Left column: vertical line with small green dots for events
+  - Right column: event content (title, role, time, location)
+
+=====================================
+DATA MODEL & MOCKS
+=====================================
+
+Create `src/mockData.ts` with interfaces:
+
+```ts
+export type HerbName = "Tulsi" | "Ashwagandha" | "Brahmi";
+
+export type Status = "SAFE" | "RECALLED";
+
+export type ActorRole = "FARMER" | "TRANSPORTER" | "LAB" | "SYSTEM";
+
+export interface FarmerInfo {
+  name: string;
+  village: string;
+  district: string;
+  state: string;
+}
+
+export interface EnvironmentInfo {
+  temperatureC: number;
+  humidityPercent: number;
+  weightKg: number;
+  lastUpdated: string;
+}
+
+export interface LabTestInfo {
+  result: "PASS" | "FAIL" | "PENDING";
+  testedAt?: string;
+  note?: string;
+}
+
+export interface RecallInfo {
+  isRecalled: boolean;
+  reason: string;
+}
+
+export interface TimelineEvent {
+  id: string;
+  title: string;
+  actorRole: ActorRole;
+  time: string;
+  locationText?: string;
+}
+
+export interface HerbBox {
+  boxId: string;
+  batchCode: string;
+  herbName: HerbName;
+  status: Status;
+  farmer: FarmerInfo;
+  environment: EnvironmentInfo;
+  labTest: LabTestInfo;
+  recall?: RecallInfo;
+  timeline: TimelineEvent[];
+}
+Export:
+
+ts
+Copy code
+export const HERB_BOXES: HerbBox[] = [ ... ];
+Fill with EXACTLY 3 boxes:
+
+Tulsi box:
+
+boxId: "BOX_TULSI_001"
+
+batchCode: "BATCH_TULSI_001"
+
+herbName: "Tulsi"
+
+status: "SAFE"
+
+Farmer: realistic Indian name and location
+
+Environment: realistic safe values (e.g. 22°C, 55% humidity, etc.)
+
+LabTest: PASS with date and short note
+
+Timeline: 6–7 events from farm to retail (harvested, packed, transporter, lab, tested, retail)
+
+Ashwagandha box:
+
+boxId: "BOX_ASHWA_001"
+
+batchCode: "BATCH_ASHWA_001"
+
+herbName: "Ashwagandha"
+
+status: "SAFE"
+
+Farmer + environment simple
+
+LabTest: PENDING
+
+Timeline: 2–3 events
+
+Brahmi box:
+
+boxId: "BOX_BRAHMI_001"
+
+batchCode: "BATCH_BRAHMI_001"
+
+herbName: "Brahmi"
+
+status: "RECALLED"
+
+Environment can have slightly high temperature
+
+LabTest: FAIL with date
+
+Recall: isRecalled true, with a reason
+
+Timeline: 2–3 events
+
+=====================================
+MULTILINGUAL SYSTEM (GLOBAL)
+Create src/i18n.ts:
+
+type Lang = "EN" | "HI" | "MR" | "GU";
+
+const translations: Record<Lang, Record<string, string>> = { ... };
+
+Include keys like:
+
+appTitle
+
+landingTitle
+
+landingSubtitle
+
+boxIdLabel
+
+boxIdPlaceholder
+
+viewTrace
+
+scanQR
+
+demoHint
+
+statusSafe
+
+statusRecalled
+
+farmerTitle
+
+environmentTitle
+
+timelineTitle
+
+labTestTitle
+
+herbInfoTitle
+
+storageTipsTitle
+
+back
+
+boxNotFound
+
+viewReport
+
+close
+
+recallTitle
+
+discardButton
+
+stillHaveButton
+
+recallThanksDiscard
+
+recallThanksHave
+
+chatbotTitle
+
+chatbotQuestion_safe
+
+chatbotQuestion_tulsi
+
+chatbotQuestion_recall
+
+chatbotAnswer_safe
+
+chatbotAnswer_tulsi
+
+chatbotAnswer_recall
+
+Create src/LanguageContext.tsx:
+
+LanguageProvider with state: current language
+
+useLanguage() hook returning:
+
+lang
+
+setLang(lang)
+
+t(key: string): string → translations[lang][key] or EN fallback
+
+Wrap <App /> in <LanguageProvider> in src/main.tsx.
+
+All text in all components MUST use t("...").
+
+=====================================
+FILE STRUCTURE
+Use:
+
+src/main.tsx
+
+src/App.tsx
+
+src/i18n.ts
+
+src/LanguageContext.tsx
+
+src/mockData.ts
+
+Components:
+
+src/components/Navbar.tsx
+
+src/components/LanguageSelector.tsx
+
+src/components/QRScanner.tsx
+
+src/components/Chatbot.tsx
+
+src/components/BoxCard.tsx
+
+src/components/HerbInfoCard.tsx
+
+src/components/FarmerCard.tsx
+
+src/components/EnvironmentCard.tsx
+
+src/components/Timeline.tsx
+
+src/components/LabTestCard.tsx
+
+src/components/RecallBanner.tsx
+
+src/components/StorageTipsCard.tsx
+
+Pages:
+
+src/pages/LandingPage.tsx
+
+src/pages/TracePage.tsx
+
+=====================================
+NAVBAR
+Navbar:
+
+Wrapper:
+
+w-full border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-20
+
+Inner:
+
+max-w-5xl mx-auto flex items-center justify-between px-4 lg:px-6 py-3
+
+Left: app title using t("appTitle"), styled with text-lg sm:text-xl font-semibold text-emerald-400
+
+Right: <LanguageSelector /> showing small pill buttons for EN / HI / MR / GU.
+
+=====================================
+LANDING PAGE
+LandingPage:
+
+Hero card:
+
+Use the card style described above.
+
+Title from t("landingTitle") (e.g. “Trace Your Herb Journey”).
+
+Subtitle from t("landingSubtitle").
+
+Box ID input block:
+
+Label from t("boxIdLabel").
+
+Input with placeholder from t("boxIdPlaceholder").
+
+Primary button t("viewTrace") that:
+
+Looks up boxId in HERB_BOXES.
+
+If found → navigate to TracePage for that box.
+
+If not found → show a small error card “Box not found” using t("boxNotFound").
+
+“Scan QR” secondary button using t("scanQR"):
+
+Opens a <QRScanner /> modal.
+
+QRScanner:
+
+Use a React QR library (e.g. react-qr-reader or any simple component).
+
+When QR is scanned, assume value is boxId (e.g. "BOX_TULSI_001").
+
+On success: call parent onScanned(boxId) → close modal → navigate to TracePage if box exists.
+
+Demo cards:
+
+Under hero, show 3 <BoxCard /> components for each HERB_BOXES item.
+
+BoxCard shows:
+
+Herb name
+
+Box ID
+
+Status chip (SAFE or RECALLED)
+
+Small hint from t("demoHint"), like “Tap to view journey”.
+
+Clicking BoxCard → open TracePage for that box.
+
+=====================================
+TRACE PAGE
+TracePage props: { boxId: string; onBack: () => void; }
+
+Find box by boxId. If not found, show small error card + Back.
+
+Top:
+
+Back button using ghost button style + t("back").
+
+Main header card:
+
+Herb name
+
+Box ID
+
+Batch code
+
+Status chip (SAFE/RECALLED)
+
+Optional small emoji 🌿
+
+If box.recall?.isRecalled:
+
+Show <RecallBanner /> at top:
+
+Uses card style with red accent.
+
+Title: t("recallTitle")
+
+Reason from box.recall.reason
+
+Two buttons:
+
+t("discardButton")
+
+t("stillHaveButton")
+
+Local state to show acknowledgement text under it:
+
+t("recallThanksDiscard") or t("recallThanksHave")
+
+No network calls.
+
+Then, stacked cards:
+
+<HerbInfoCard />:
+
+Title: t("herbInfoTitle")
+
+Based on herbName:
+
+Tulsi: 4–5 bullet lines describing immunity, respiratory support, detox, etc.
+
+Ashwagandha: stress, stamina, sleep, vitality.
+
+Brahmi: memory, focus, cognitive support.
+
+<FarmerCard />:
+
+Title: t("farmerTitle")
+
+Show farmer name, village, district, state.
+
+Include a small “Certified Farmer” pill.
+
+<EnvironmentCard />:
+
+Title: t("environmentTitle")
+
+Grid of 4 metric cards:
+
+Temperature °C
+
+Humidity %
+
+Weight kg
+
+Each uses metric card style described above.
+
+Show “Last updated {time}” under grid (from environment.lastUpdated).
+
+<Timeline />:
+
+Title: t("timelineTitle")
+
+Render timeline events vertically using timeline style described above.
+
+<LabTestCard />:
+
+Title: t("labTestTitle")
+
+Show labTest.result and labTest.testedAt if available.
+
+Button t("viewReport"):
+
+Opens a modal with dummy lab report text.
+
+Modal uses card style and has a Close button from t("close").
+
+<StorageTipsCard />:
+
+Title: t("storageTipsTitle")
+
+2–3 bullet points from translations, e.g.:
+
+“Store in a cool, dry place.”
+
+“Keep away from direct sunlight.”
+
+“Use within the recommended time.”
+
+=====================================
+GLOBAL CHATBOT (MULTILINGUAL, ALL PAGES)
+Create src/components/Chatbot.tsx:
+
+Rendered once in App.tsx so it appears on every page.
+
+Floating trigger button:
+
+fixed bottom-4 right-4 z-30
+
+bg-emerald-500 text-slate-950 rounded-full w-11 h-11 flex items-center justify-center shadow-lg hover:bg-emerald-400
+
+On click, open a panel above:
+
+Panel: fixed bottom-20 right-4 w-72 max-h-96 bg-slate-900 rounded-2xl border border-slate-800 shadow-lg flex flex-col
+
+Header: title from t("chatbotTitle")
+
+Content area: scrollable list of message bubbles.
+
+Quick question buttons:
+
+t("chatbotQuestion_safe")
+
+t("chatbotQuestion_tulsi")
+
+t("chatbotQuestion_recall")
+
+On clicking a question:
+
+Add a "user" bubble (right aligned) with the question text.
+
+Add a "bot" bubble (left aligned) with corresponding answer text using:
+
+t("chatbotAnswer_safe")
+
+t("chatbotAnswer_tulsi")
+
+t("chatbotAnswer_recall")
+
+Bubble styling:
+
+Bot: self-start bg-slate-800 rounded-2xl px-3 py-2 text-sm
+
+User: self-end bg-emerald-500 text-slate-950 rounded-2xl px-3 py-2 text-sm
+
+All chatbot text must be taken from translations via t(key).
+
+=====================================
+QR SCANNER
+Create QRScanner.tsx:
+
+Simple modal card with:
+
+header row (title + close button)
+
+QR scan area
+
+“Cancel” button
+
+Use a React QR reader library or stub that calls onScanned(value: string) when it "scans".
+
+Parent will interpret scanned value as boxId.
+
+=====================================
+RULES
+No backend, no fetch, no axios.
+
+Use only React state/props, LanguageContext, and mockData.
+
+Use Tailwind CSS for all styling.
+
+Output only code (no explanation text).
+
+yaml
+Copy code

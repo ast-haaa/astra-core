@@ -1,0 +1,239 @@
+FIX & ENHANCE HerbTrace LAB APP (FINAL – STRICT)
+
+==============================
+GOAL
+==============================
+Make the Lab (Quality Analyst) app visually clean, premium, and fully consistent
+with the Farmer app UI, while fixing all dropdown overlap issues, improving the
+Upload Lab Test UI, adding Recall sample UI, enforcing full multi-language support,
+and updating sample names.
+
+NO half-done UI.
+NO broken spacing.
+NO overlap anywhere.
+
+==============================
+1. UPDATE SAMPLE NAMES (MANDATORY)
+==============================
+
+Replace sample names EVERYWHERE (Dashboard, Samples, Modals, Recalls):
+
+- Tulsi Leaves  (reference – must look perfect)
+- Ashwagandha Root
+- Brahmi Extract
+
+REMOVE completely:
+- Neem Extract
+- Turmeric Powder
+
+Batch IDs can stay auto-generated.
+
+==============================
+2. GLOBAL DROPDOWN OVERLAP FIX (ALL PAGES)
+==============================
+
+Applies to:
+- Language dropdown (header)
+- Profile setup & edit
+- Status dropdown
+- Test Result dropdown
+- Filters
+- Any modal dropdown
+
+RULES (NON-NEGOTIABLE):
+- NO dropdown may overlap ANY UI element.
+- Dropdown opens ONLY below its trigger.
+- Maintain 8–12px vertical gap.
+- Solid white background only (NO blur / NO transparency).
+- Proper z-index (above cards & modals, below toasts).
+- ONLY one dropdown open at a time.
+- Clicking outside closes dropdown.
+- Height auto-adjusts for long translated text.
+
+TECHNICAL REQUIREMENTS:
+- Render dropdowns using portal / absolute layer.
+- Parent containers must NOT clip dropdowns
+  (remove overflow:hidden).
+- Dropdown width must match trigger width.
+
+==============================
+3. GLOBAL DROPDOWN CSS (MANDATORY)
+==============================
+
+.dropdown-menu,
+.select-dropdown,
+[role="listbox"] {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  z-index: 9999;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  line-height: 1.6;
+  font-size: 14px;
+  white-space: normal;
+}
+
+.form-group,
+.dropdown-wrapper,
+.card,
+.modal-content {
+  overflow: visible !important;
+}
+
+==============================
+4. JS / REACT LOGIC – SINGLE DROPDOWN RULE
+==============================
+
+let openDropdown = null;
+
+function toggleDropdown(id) {
+  if (openDropdown && openDropdown !== id) {
+    document.getElementById(openDropdown)?.classList.remove("open");
+  }
+  const el = document.getElementById(id);
+  el.classList.toggle("open");
+  openDropdown = el.classList.contains("open") ? id : null;
+}
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".dropdown-wrapper")) {
+    document
+      .querySelectorAll(".dropdown-wrapper.open")
+      .forEach(d => d.classList.remove("open"));
+    openDropdown = null;
+  }
+});
+
+==============================
+5. UPLOAD LAB TEST REPORT – PREMIUM UI
+==============================
+
+Make the upload section look COMPLETE and PREMIUM.
+No empty or cut-off feeling.
+
+UI RULES:
+- Card-style upload box
+- Solid white background
+- Rounded corners (same as inputs)
+- Soft dashed green border
+- Centered icon + text
+- Subtle hover highlight
+- UI only (NO preview, NO validation logic)
+
+CSS:
+
+.upload-card {
+  background: #ffffff;
+  border: 2px dashed #b7e4c7;
+  border-radius: 14px;
+  padding: 28px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-card:hover {
+  background: #f3fff7;
+  border-color: #52b788;
+}
+
+.upload-icon {
+  width: 48px;
+  height: 48px;
+  background: #e9fce9;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.upload-text h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.upload-text p {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.upload-text span {
+  font-size: 12px;
+  color: #16a34a;
+}
+
+==============================
+6. RECALL UI (ADD ONE SAMPLE)
+==============================
+
+Show at least ONE recall card example:
+
+- Sample: Ashwagandha Root
+- Batch ID: auto
+- Reason: Failed lab purity test
+- Status: Awaiting farmer action
+
+Include:
+- Recall card with red accent
+- Action button: “Notify Farmer”
+
+Also support empty state:
+“No active recalls”
+
+==============================
+7. MULTI-LANGUAGE (MATCH FARMER APP)
+==============================
+
+Languages:
+- English
+- हिंदी
+- मराठी
+- ગુજરાતી
+
+RULES:
+- EVERY visible text must be translatable:
+  headings, labels, buttons, dropdown values,
+  status text, upload text, recall text.
+- Instant language switch (no refresh).
+- Persist language across pages, modals, reloads.
+- Use SAME translation keys as Farmer app.
+- Increase padding & line-height to prevent overlap.
+
+==============================
+8. ADDITIONAL UI FEATURES (ALLOWED)
+==============================
+
+- Offline mode indicator (loop/sync icon in header)
+  Tooltip: “Offline mode – data will sync automatically”
+- Download Lab Report (PDF) button
+- Recall count badge on Dashboard
+
+==============================
+9. FINAL CONSISTENCY RULE
+==============================
+
+Lab App must visually feel like:
+“Farmer App UI + same spacing + same typography + same translations
++ ONLY role text changed”
+
+Role text:
+- Farmer app → Farmer
+- Lab app → Quality Analyst
+
+NO redesign.
+NO layout change.
+NO half implementation.
+
+==============================
+END OF PROMPT
+==============================

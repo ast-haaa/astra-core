@@ -1,0 +1,128 @@
+====================================================
+A) WHERE “ADD NEW HERB” SHOULD APPEAR
+====================================================
+
+Provide a clear option:
+➕ Add New Herb
+
+This can appear:
+
+In Samples screen (top-right button), OR
+
+Inside a dropdown where herbs are selected
+
+⚠️ Do NOT open a new page
+⚠️ Use a modal or slide-up panel only
+
+====================================================
+B) ADD NEW HERB – FORM STRUCTURE (STRICT)
+====================================================
+
+When Add New Herb is clicked, open a modal with:
+
+🔬 LAB DETAILS (READ-ONLY)
+
+Auto-filled from logged-in Lab Tester:
+
+Lab Name (read-only)
+
+Lab ID (read-only)
+
+Rules:
+
+These fields must be visible
+
+User must NOT type them
+
+Same white card style as Profile screen
+
+🌿 HERB DETAILS (EDITABLE)
+
+Fields (STRICT ORDER):
+
+Herb Name (required)
+
+Example: Triphala
+
+Category (dropdown)
+
+Leaf
+
+Root
+
+Mix
+
+Powder
+
+Notes (optional textarea)
+
+ACTION BUTTONS
+
+✅ Save Herb
+
+Cancel
+
+====================================================
+C) SAVE BEHAVIOR (MOCK ONLY)
+====================================================
+
+On clicking Save Herb:
+
+Create a new herb object with:
+
+Herb Name
+
+Category
+
+Notes
+
+Lab Name
+
+Lab ID
+
+Store it in local/mock state
+
+Close modal
+
+Newly added herb must:
+
+Instantly appear in Samples list
+
+Be selectable in dropdowns
+
+Show “Tested by: <Lab Name>” where relevant
+
+❌ No API calls
+❌ No validation beyond required field check
+
+====================================================
+D) UI RULES (NON-NEGOTIABLE)
+====================================================
+
+Same font, spacing, and card style as rest of Lab App
+
+Solid white background
+
+Rounded corners
+
+No half-cut UI
+
+No overlapping dropdowns
+
+Dark mode compatible
+
+Multi-language compatible (no hardcoded English text)
+
+====================================================
+FINAL EXPECTATION
+====================================================
+
+Lab Tester can add a new herb cleanly
+
+Lab identity is always visible (traceability)
+
+New herb appears immediately
+
+UI feels finished, not demo-like
+
+👉 If herb does not appear after save → FIX IT.

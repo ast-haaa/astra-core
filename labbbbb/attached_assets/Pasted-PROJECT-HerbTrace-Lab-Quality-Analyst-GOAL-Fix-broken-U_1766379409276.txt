@@ -1,0 +1,306 @@
+PROJECT: HerbTrace – Lab (Quality Analyst)
+GOAL
+
+Fix broken UI, clean Sample Update modal, correct sample names, add recall visibility, offline indicator, multilingual support, and enforce premium Farmer-app level consistency.
+
+⚠️ FINAL RULE (NON-NEGOTIABLE)
+Lab app must look exactly like:
+👉 “Farmer App UI + Quality Analyst role text only”
+
+❌ No new layout
+
+❌ No redesign
+
+❌ No missing fixes
+
+✅ Same cards, spacing, fonts, radius, icons, hover, vibe as Farmer app
+
+1️⃣ SAMPLE NAMES (GLOBAL – FINAL)
+
+The app must contain ONLY these 4 samples everywhere:
+
+Brahmi
+
+Ashwagandha
+
+Tulsi
+
+Triphala
+
+❌ Remove Neem, Turmeric, or any other sample completely.
+
+Applies to:
+
+Dashboard
+
+Samples list
+
+Sample details
+
+Recalls
+
+Modals
+
+Mock data
+
+2️⃣ TRIPHALA – RECALL (FINAL BEHAVIOR)
+
+🔴 Triphala must exist as a normal sample AND be recalled
+
+Recall Details (FIXED):
+
+Sample: Triphala
+
+Reason: Moisture exceeded safe limit
+
+Status: ACTIVE
+
+Severity: HIGH
+
+Triphala MUST appear in:
+
+Dashboard
+
+Samples list
+
+Sample details
+
+Recalls page
+
+Visual Rules:
+
+Red warning icon
+
+Label: RECALL ACTIVE
+
+Text: Farmer action pending
+
+❌ Sample must NOT disappear anywhere
+
+3️⃣ DASHBOARD – RECALL HIGHLIGHT
+
+Add a dashboard badge card:
+
+“1 Recall Needs Action”
+
+Rules:
+
+Same card style as Farmer app
+
+Click → navigates to Recalls page
+
+Badge visible until recall is resolved
+
+4️⃣ RECALLS PAGE – MUST NOT BE EMPTY
+
+Recalls page MUST show Triphala recall card.
+
+Card Content:
+
+Sample: Triphala
+
+Reason: Moisture exceeded safe limit
+
+Severity: HIGH (red)
+
+Status: ACTIVE
+
+UI Rules:
+
+Solid white card
+
+Warning icon
+
+Clean spacing
+
+Premium Farmer-like UI
+
+5️⃣ SAMPLE UPDATE MODAL – UI FIX (CRITICAL)
+ISSUE
+
+Modal is cut / overflowing / unfinished.
+
+FIX (MANDATORY)
+
+Modal must stay fully inside viewport
+
+max-height: 90vh
+
+overflow-y: auto
+
+Extra bottom padding so last field is visible
+
+FIELD ORDER (EXACT – DO NOT CHANGE)
+
+Temperature
+
+Humidity
+
+Test Result (dropdown)
+
+Upload Lab Test Report (CARD)
+
+Remarks / Observations
+
+Action buttons
+
+6️⃣ UPLOAD LAB TEST REPORT – PREMIUM UI (UI ONLY)
+
+❗ CRITICAL FIX (BASED ON CURRENT BUG)
+Upload card must look IDENTICAL in new + edit mode.
+
+STRICT RULES
+
+❌ NO file name visible
+
+❌ NO “Click to change” text
+
+❌ NO preview
+
+❌ NO validation
+
+❌ NO backend logic
+
+Design (FINAL)
+
+Card-style upload box
+
+Solid white background
+
+Rounded corners (same as inputs)
+
+Soft dashed green border
+
+Center aligned
+
+Inside Card (ALWAYS SAME)
+
+Upload icon (same style as Farmer app)
+
+Title: Upload Lab Test Report
+
+Subtitle: PDF, JPG, PNG supported
+
+Helper text: Click to select
+
+Hover
+
+Light green tint
+
+Border highlight
+
+7️⃣ DOWNLOAD LAB REPORT BUTTON
+
+If report exists:
+
+Show secondary button:
+“Download Lab Report (PDF)”
+
+Rules:
+
+Visible only when file exists
+
+Clean secondary button style
+
+UI only (no backend logic)
+
+8️⃣ OFFLINE MODE INDICATOR (HEADER)
+
+Add loop / sync icon in header.
+
+Behavior:
+
+Visible only when offline
+
+Tooltip text:
+“Offline mode – data will sync automatically”
+
+UI:
+
+Minimal
+
+Non-blocking
+
+Same icon style as Farmer app
+
+9️⃣ SAMPLE TIMELINE (READ-ONLY)
+
+Inside Sample Details page:
+
+Timeline:
+Assigned → Testing → Completed
+
+Rules:
+
+Read-only
+
+Highlight current stage
+
+Simple horizontal or vertical
+
+Same style as Farmer app
+
+🔟 MULTI-LANGUAGE (STRICT – MATCH FARMER)
+Languages:
+
+English
+
+हिंदी
+
+मराठी
+
+ગુજરાતી
+
+Rules:
+
+EVERY visible text must translate
+
+No hardcoded English
+
+Instant language switch
+
+Persist across pages, modals & reloads
+
+Use same translation keys as Farmer app
+
+Applies to:
+
+Headings
+
+Labels
+
+Buttons
+
+Status values
+
+Recall text
+
+Upload text
+
+Tooltips
+
+Empty states
+
+1️⃣1️⃣ VISUAL CONSISTENCY (NON-NEGOTIABLE)
+
+Solid white cards
+
+❌ NO watermark icons inside cards
+
+Same padding, spacing, font sizes as Farmer
+
+❌ No transparency
+
+❌ No blur
+
+Clean, premium, professional look
+
+✅ FINAL STATEMENT
+
+Do NOT redesign.
+Do NOT change layout.
+Do NOT skip any rule.
+
+Just fix, align, clean, and make it
+Farmer-grade premium UI with
+Quality Analyst role text only.

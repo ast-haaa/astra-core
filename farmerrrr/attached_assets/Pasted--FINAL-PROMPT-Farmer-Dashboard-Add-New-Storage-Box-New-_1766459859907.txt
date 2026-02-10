@@ -1,0 +1,221 @@
+🚜 FINAL PROMPT: Farmer Dashboard – Add New Storage Box + New Herb + Offline + Dark Mode + Multi-Language
+
+You are an expert frontend engineer.
+Enhance my existing Farmer Dashboard built with React + TypeScript + Vite + Tailwind CSS for an IoT-based herbal storage & traceability system.
+
+⚠️ STRICT NON-NEGOTIABLE RULES
+
+❌ No new app
+
+❌ No redesign
+
+✅ Must look like a native extension of the current Farmer UI
+
+Match exact layout, spacing, colors, typography, cards, navbar, sidebar
+
+Must behave exactly like Farmer app, not a separate role UI
+
+🧠 CORE LOGIC (MANDATORY)
+
+Farmer is already logged in
+
+Farmer:
+
+Adds new IoT storage box (hub)
+
+Can add new herb dynamically
+
+Farmer does not manually inspect sensors
+
+Box must be added before data appears
+
+Every box is auto-linked to logged-in farmer
+
+All logic must be mock-friendly
+
+📍 FEATURE 1: ADD NEW STORAGE BOX
+Placement
+
+On Farmer Dashboard:
+➕ Add New Storage Box
+
+Opens modal / slide-over
+
+❌ No page navigation
+
+👨‍🌾 Farmer Auto-Linked Details (READ-ONLY)
+
+Inside modal show:
+
+Farmer Name
+
+Farmer ID / Contact
+
+Rules:
+
+Auto-fetched from Farmer auth state
+
+Read-only (not input fields)
+
+Display as compact summary card
+
+🧾 STORAGE BOX FORM
+
+Fields:
+
+Box / Hub ID
+
+Placeholder: Scan QR or enter Box ID
+
+Herb Type
+
+Dropdown
+
+Include option:
+➕ Add New Herb
+
+Farm / Storage Location
+
+Expected Storage Conditions (collapsible)
+
+Temperature min–max
+
+Humidity min–max
+
+Notes (optional)
+
+Primary CTA:
+✅ Register & Activate Box
+
+🌿 FEATURE 2: ADD NEW HERB (INLINE)
+
+When ➕ Add New Herb selected:
+
+Inline mini-form (same modal)
+
+❌ No new modal / page
+
+Fields:
+
+Herb Name (required)
+
+Category (Leaf / Root / Powder / Mix)
+
+Scientific Name (optional)
+
+Notes (optional)
+
+Behavior:
+
+Save → herb added instantly
+
+Auto-selected in dropdown
+
+Stored in local/mock state
+
+🌐 FEATURE 3: MULTI-LANGUAGE (MATCH FARMER EXACTLY)
+Supported Languages:
+
+English
+
+हिंदी
+
+मराठी
+
+ગુજરાતી
+
+Rules:
+
+EVERY visible text must be translatable
+
+❌ No hardcoded English strings
+
+Use same translation keys & structure as Farmer app
+
+Language switch must:
+
+Be instant
+
+Persist across pages
+
+Persist after reload
+
+Must reuse existing Farmer language context / i18n system
+
+🌙 FEATURE 4: DARK MODE (MATCH FARMER)
+
+Same toggle behavior as Farmer
+
+Auto-persist theme
+
+No visual mismatch
+
+Cards, modal, icons all dark-mode safe
+
+📡 FEATURE 5: OFFLINE MODE INDICATOR (HEADER)
+
+Add a small sync / loop icon in header (Farmer style).
+
+Behavior:
+
+Icon visible only when offline
+
+Tooltip text:
+
+“Offline mode – data will sync automatically”
+
+Minimal
+
+Non-blocking
+
+Same visual weight as Farmer icons
+
+⚙️ SUBMIT BEHAVIOR (MOCK ONLY)
+
+On submit:
+
+Show loading state
+
+Simulate success
+
+Add box card to dashboard
+
+Status:
+🟡 Active – Waiting for Data
+
+❌ No backend
+✔️ Mock state only
+
+🧩 CODE RULES
+
+Functional components only
+
+React hooks only
+
+Strong TypeScript typing
+
+Production-grade code
+
+Reusable components
+
+Clean folder-safe logic
+
+🏁 EXPECTED RESULT
+
+Farmer can:
+
+Add storage boxes
+
+Add new herbs
+
+Work offline
+
+Switch language instantly
+
+UI feels complete, real, SIH-ready
+
+No logic gaps
+
+No admin dependency
+
+💥 FINAL. DO NOT REMOVE OR SIMPLIFY ANY FEATURE. 💥

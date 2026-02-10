@@ -1,0 +1,18 @@
+export async function fetchTulsiLive() {
+  try {
+    const res = await fetch("http://172.20.10.11:8080/api/tulsi/live");
+
+    if (!res.ok) throw new Error("Tulsi API failed");
+
+    return await res.json();
+  } catch (err) {
+    console.error("Tulsi LIVE error:", err);
+
+    // fallback mock if backend fails
+    return {
+      temperature: 26,
+      humidity: 60,
+      peltier: "OFF"
+    };
+  }
+}

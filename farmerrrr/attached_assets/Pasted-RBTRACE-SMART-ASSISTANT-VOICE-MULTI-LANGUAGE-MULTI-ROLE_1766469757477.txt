@@ -1,0 +1,303 @@
+RBTRACE SMART ASSISTANT
+(VOICE + MULTI-LANGUAGE + MULTI-ROLE + INTERNET AWARE) – FINAL MASTER PROMPT
+
+You are an expert frontend engineer and AI assistant architect.
+
+🎯 GOAL
+Add a Smart AI Chatbot Assistant to the HerbTrace Web App that:
+
+Works on every page
+
+Supports text + voice
+
+Is multi-lingual
+
+Gives role-specific answers (Farmer / Lab Tester / Consumer)
+
+Shows auto-suggested questions
+
+Explains inside-app features
+
+Explains outside-app concepts
+
+Can use publicly available internet knowledge (read-only)
+
+Feels smart, modern, and production-ready
+
+====================================================
+A) CHATBOT VISIBILITY & UI
+====================================================
+
+Floating chat button (bottom-right)
+
+Opens a chat panel
+
+Available on all screens
+
+Dark mode compatible
+
+Clean, friendly, premium UI
+
+No clutter, no demo feel
+
+====================================================
+B) MULTI-LANGUAGE SUPPORT (MANDATORY)
+====================================================
+
+Supported languages:
+
+English
+
+हिंदी
+
+मराठी
+
+ગુજરાતી
+
+Rules:
+
+Chatbot language must follow app language automatically
+
+No separate language selector inside chatbot
+
+Language switch = instant
+
+Same language used for:
+
+Text replies
+
+Voice replies
+
+Auto-suggest buttons
+
+No hardcoded English strings
+
+====================================================
+C) VOICE SUPPORT (MANDATORY)
+====================================================
+🎙️ Voice Input
+
+Mic icon inside chatbot
+
+User can speak queries
+
+Use browser Speech Recognition API
+
+Convert voice → text
+
+🔊 Voice Output
+
+Speaker icon on each bot reply
+
+Bot reads response aloud
+
+Use browser Text-to-Speech API
+
+Voice language must match selected app language
+
+❌ No external voice service
+❌ No backend
+
+====================================================
+D) AUTO-SUGGEST QUESTIONS (ROLE-BASED)
+====================================================
+
+Show suggestion buttons when chatbot opens.
+
+👨‍🌾 Farmer Suggestions
+
+How does this app work?
+
+How do I add a new box?
+
+What is a recall?
+
+Why was Triphala recalled?
+
+How do I respond to alerts?
+
+🔬 Lab Tester Suggestions
+
+How to add a new herb?
+
+How to upload a lab report?
+
+What does “Recalled” mean?
+
+How does lab testing work?
+
+When should I recall a batch?
+
+🧑 Consumer Suggestions
+
+Is this product safe?
+
+What is traceability?
+
+Why was this product recalled?
+
+What is Triphala?
+
+How can I trust this product?
+
+Buttons must:
+
+Auto-fill chat input
+
+Change with role
+
+Change with language
+
+====================================================
+E) ROLE-BASED INTELLIGENCE (VERY IMPORTANT)
+====================================================
+
+Chatbot must detect current user role from app state:
+
+Farmer
+
+Lab Tester
+
+Consumer
+
+Same question → different explanation style.
+
+Example: “What is a recall?”
+
+Farmer → operational explanation
+
+Lab Tester → technical/safety explanation
+
+Consumer → simple safety explanation
+
+====================================================
+F) INTERNET / EXTERNAL KNOWLEDGE (NEW – MANDATORY)
+====================================================
+
+The chatbot MAY use publicly available internet knowledge to answer questions such as:
+
+General herb information
+
+Ayurveda basics
+
+Lab testing concepts
+
+Food safety & quality terms
+
+Government / standard definitions (general, non-legal)
+
+Educational explanations
+
+RULES FOR INTERNET DATA:
+
+Use general, non-sensitive, public knowledge only
+
+Do NOT claim real-time accuracy
+
+Do NOT access private or paid sources
+
+Do NOT give medical diagnosis
+
+If unsure, say:
+
+“Based on commonly available information…”
+
+The chatbot must clearly separate:
+
+App-specific data (from HerbTrace)
+
+General knowledge (from public sources)
+
+====================================================
+G) CHATBOT KNOWLEDGE SCOPE
+====================================================
+📱 Inside the App
+
+What is HerbTrace?
+
+How does HerbTrace work?
+
+What does Completed / Recalled mean?
+
+How does traceability work?
+
+What should each role do?
+
+🌿 Outside the App (Internet Knowledge)
+
+What is Tulsi?
+
+What is Triphala?
+
+Why is moisture dangerous?
+
+Why are herbs recalled?
+
+Why lab testing is important?
+
+🤖 About the Assistant
+
+Who are you?
+
+What can you help with?
+
+Can you answer outside questions?
+
+====================================================
+H) RESPONSE STYLE (STRICT)
+====================================================
+
+Simple language
+
+Friendly tone
+
+Short paragraphs
+
+No heavy technical words
+
+Suitable for rural + non-technical users
+
+Respect selected language
+
+Emojis optional (light use)
+
+====================================================
+I) TECH RULES
+====================================================
+
+React functional component
+
+Global component (App/Layout level)
+
+Uses:
+
+Role context
+
+Language context
+
+Browser APIs for voice
+
+No backend required
+
+No external paid APIs
+
+Clean, reusable code
+
+====================================================
+FINAL EXPECTATION
+====================================================
+
+Chatbot can listen, speak, explain, and guide
+
+Works for Farmer, Lab Tester, and Consumer
+
+Answers both app-related and general internet-based questions
+
+Multi-language + voice + smart suggestions
+
+App feels intelligent & enterprise-ready
+
+👉 If chatbot feels limited or dumb → IMPROVE IT.
+
+✅ FINAL MASTER PROMPT. FOLLOW STRICTLY.
+
