@@ -1,0 +1,31 @@
+server: 
+  port: ${SERVER_PORT:-8080}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/herbbox?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    username: ${SPRING_DATASOURCE_USERNAME:appuser}
+    password: ${SPRING_DATASOURCE_PASSWORD:StrongP@ssw0rd!}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+mqtt:
+  broker: ${MQTT_BROKER:tcp://localhost:1883}
+  client-id: ${MQTT_CLIENT_ID:astra-backend-client}
+  topic: boxes/+/telemetry
+  ackTopic: boxes/+/ack
+
+opencage:
+  api-key: ea754dfa4b004a5e8571b1ac78ee3328
+
+exotel:
+  accountSid: dummy
+  apiKey: dummy
+  apiToken: dummy
+  fromNumber: dummy
