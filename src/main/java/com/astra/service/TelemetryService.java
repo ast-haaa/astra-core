@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class TelemetryService {
@@ -42,9 +44,9 @@ public class TelemetryService {
         return telemetryRepository.save(t);
     }
 
-    public List<Telemetry> findByBoxId(String boxId) {
-        return telemetryRepository.findByBoxIdOrderByTimestampDesc(boxId);
-    }
+    public Optional<Telemetry> findLatestByBoxId(String boxId) {
+    return telemetryRepository.findTopByBoxIdOrderByTimestampDesc(boxId);
+}
 
     // 🔕 Flood control
     private boolean recentlyAlerted(String boxId, int minutes) {

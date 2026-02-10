@@ -146,4 +146,13 @@ List<Alert> alerts = alertRepo.findByBatch_Farmer_IdOrderByCreatedAtDesc(farmerI
 
         return toDto(alert, lang);
     }
+   public List<Alert> getEscalatedAlerts() {
+    return alertRepo.findByStatusInAndDeadlineBeforeAndEscalated(
+            List.of(Alert.Status.OPEN),
+            LocalDateTime.now(),
+            true
+    );
+}
+
+
 }
